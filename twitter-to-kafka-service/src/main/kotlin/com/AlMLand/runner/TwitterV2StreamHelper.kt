@@ -78,7 +78,7 @@ open class TwitterV2StreamHelper(
     }
 
     private fun createRules(bearerToken: String, rules: Map<String, String>) {
-        val (httpClient, httpPost, body) = getRequestBodyHttpRequestHttpClient(
+        val (httpClient, httpPost, body) = getHttpClientHttpRequestRequestBody(
             bearerToken,
             rules = rules
         )
@@ -89,7 +89,7 @@ open class TwitterV2StreamHelper(
     }
 
     private fun deleteRules(bearerToken: String, existingRules: List<String>) {
-        val (httpClient, httpPost, body) = getRequestBodyHttpRequestHttpClient(
+        val (httpClient, httpPost, body) = getHttpClientHttpRequestRequestBody(
             bearerToken,
             existingRules = existingRules
         )
@@ -99,7 +99,7 @@ open class TwitterV2StreamHelper(
         httpEntity?.let { println(EntityUtils.toString(httpEntity, DEFAULT_CHARSET)) }
     }
 
-    private fun getRequestBodyHttpRequestHttpClient(
+    private fun getHttpClientHttpRequestRequestBody(
         bearerToken: String,
         rules: Map<String, String>? = null,
         existingRules: List<String>? = null
