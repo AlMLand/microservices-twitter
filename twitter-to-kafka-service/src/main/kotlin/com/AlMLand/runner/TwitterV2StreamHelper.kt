@@ -2,12 +2,17 @@ package com.AlMLand.runner
 
 import com.AlMLand.config.TwitterProperties
 import com.AlMLand.listener.TwitterStatusListener
+import com.AlMLand.runner.HttpRequest.GET
+import com.AlMLand.runner.HttpRequest.POST
 import org.apache.http.client.config.CookieSpecs
 import org.apache.http.client.config.RequestConfig
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpPost
+import org.apache.http.client.methods.HttpRequestBase
 import org.apache.http.client.utils.URIBuilder
 import org.apache.http.entity.StringEntity
+import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.message.BasicHeader
 import org.apache.http.util.EntityUtils
@@ -32,6 +37,11 @@ private const val TWITTER_STATUS_DATE_FORMAT = "EEE MMM dd HH:mm:ss zzz yyyy"
 private const val TWEET_AS_ROW_JSON = """
     {"created_at":"{0}","id":"{1}","text":"{2}","user":{"id":"{3}"}}
 """
+private const val DEFAULT_CHARSET = "UTF-8"
+private const val BODY_ADD_TEMPLATE = "{\"add\": [%s]}"
+private const val BODY_DELETE_TEMPLATE = "{\"delete\":{\"ids\":[%s]}}"
+
+enum class HttpRequest { GET, POST }
 
 @Component
 @ConditionalOnExpression("\${twitter-to-kafka-service.enable-v2-tweets} && not \${twitter-to-kafka-service.enable-mock-tweets}")
@@ -41,12 +51,8 @@ open class TwitterV2StreamHelper(
 ) {
 
     fun connectStream(bearerToken: String) {
-        val httpClient = HttpClients.custom()
-            .setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build()).build()
-        val uriBuilder = URIBuilder(twitterProperties.twitterV2BaseUrl)
-        val httpGet = HttpGet(uriBuilder.build())
-        httpGet.setHeader("Authorization", "Bearer $bearerToken")
-
+        val httpClient = getHttpClient()
+        val httpGet = createHttpGet(bearerToken)
         val httpResponse = httpClient.execute(httpGet)
         val entity = httpResponse.entity
         entity?.let {
@@ -78,56 +84,32 @@ open class TwitterV2StreamHelper(
     }
 
     private fun createRules(bearerToken: String, rules: Map<String, String>) {
-        val httpClient = HttpClients.custom()
-            .setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build()).build()
-        val uriBuilder = URIBuilder(twitterProperties.twitterV2RulesBaseUrl)
-        val httpPost = HttpPost(uriBuilder.build())
-        httpPost.setHeaders(
-            arrayOf(
-                BasicHeader("Authorization", "Bearer $bearerToken"),
-                BasicHeader("Content-type", "application/json")
-            )
-        )
-        val body = StringEntity(getFormattedString("{\"add\": [%s]}", rules))
+        val httpClient = getHttpClient()
+        val httpPost = createHttpRequest(POST, bearerToken) as HttpEntityEnclosingRequestBase
+        val body = StringEntity(getFormattedString(BODY_ADD_TEMPLATE, rules))
         httpPost.entity = body
         val response = httpClient.execute(httpPost)
         val entity = response.entity
-        entity?.let { println(EntityUtils.toString(entity, "UTF-8")) }
+        entity?.let { println(EntityUtils.toString(entity, DEFAULT_CHARSET)) }
     }
 
     private fun deleteRules(bearerToken: String, existingRules: List<String>) {
-        val httpClient = HttpClients.custom()
-            .setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build()).build()
-        val uriBuilder = URIBuilder(twitterProperties.twitterV2RulesBaseUrl)
-        val httpPost = HttpPost(uriBuilder.build())
-        httpPost.setHeaders(
-            arrayOf(
-                BasicHeader("Authorization", "Bearer $bearerToken"),
-                BasicHeader("Content-type", "application/json")
-            )
-        )
-        val body = StringEntity(getFormattedString("{\"delete\":{\"ids\":[%s]}}", existingRules))
+        val httpClient = getHttpClient()
+        val httpPost = createHttpRequest(POST, bearerToken) as HttpEntityEnclosingRequestBase
+        val body = StringEntity(getFormattedString(BODY_DELETE_TEMPLATE, existingRules))
         httpPost.entity = body
         val response = httpClient.execute(httpPost)
         val httpEntity = response.entity
-        httpEntity?.let { println(EntityUtils.toString(httpEntity, "UTF-8")) }
+        httpEntity?.let { println(EntityUtils.toString(httpEntity, DEFAULT_CHARSET)) }
     }
 
     private fun getRules(bearerToken: String): List<String> {
-        val httpClient = HttpClients.custom()
-            .setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build()).build()
-        val uriBuilder = URIBuilder(twitterProperties.twitterV2RulesBaseUrl)
-        val httpGet = HttpGet(uriBuilder.build())
-        httpGet.setHeaders(
-            arrayOf(
-                BasicHeader("Authorization", "Bearer $bearerToken"),
-                BasicHeader("Content-type", "application/json")
-            )
-        )
+        val httpClient = getHttpClient()
+        val httpGet = createHttpRequest(GET, bearerToken)
         val httpResponse = httpClient.execute(httpGet)
         val entity = httpResponse.entity
         entity?.let {
-            val json = JSONObject(EntityUtils.toString(entity, "UTF-8"))
+            val json = JSONObject(EntityUtils.toString(entity, DEFAULT_CHARSET))
             if (json.length() > 1 && json.has("data")) {
                 val jsonArray = json.get("data") as JSONArray
                 return jsonArray.asSequence().map {
@@ -138,7 +120,7 @@ open class TwitterV2StreamHelper(
         return emptyList()
     }
 
-    private fun getFormattedString(string: String, ids: List<String>): String {
+    private fun getFormattedString(template: String, ids: List<String>): String {
         val result = when (ids.size) {
             1 -> "\"${ids[0]}\""
             else -> {
@@ -149,14 +131,14 @@ open class TwitterV2StreamHelper(
                 sb.substring(0, sb.length - 1)
             }
         }
-        return String.format(string, result)
+        return String.format(template, result)
     }
 
-    private fun getFormattedString(string: String, rules: Map<String, String>): String {
+    private fun getFormattedString(template: String, rules: Map<String, String>): String {
         return when (rules.size) {
             1 -> {
                 val key = rules.keys.first()
-                String.format(string, "{\"value\": \"$key\", \"tag\": \"${rules[key]}\"}")
+                String.format(template, "{\"value\": \"$key\", \"tag\": \"${rules[key]}\"}")
             }
 
             else -> {
@@ -164,7 +146,7 @@ open class TwitterV2StreamHelper(
                 for ((key, value) in rules) {
                     sb.append("{\"value\": \"$key\", \"tag\": \"$value\"},")
                 }
-                return String.format(string, sb.toString().substring(0, sb.length - 1))
+                return String.format(template, sb.toString().substring(0, sb.length - 1))
             }
         }
     }
@@ -187,5 +169,30 @@ open class TwitterV2StreamHelper(
             tweet = tweet.replace("{$index}", value)
         }
         return tweet
+    }
+
+    private fun getHttpClient(): CloseableHttpClient = HttpClients.custom()
+        .setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build()).build()
+
+    private fun createHttpGet(bearerToken: String): HttpGet {
+        val uriBuilder = URIBuilder(twitterProperties.twitterV2BaseUrl)
+        val httpGet = HttpGet(uriBuilder.build())
+        httpGet.setHeader("Authorization", "Bearer $bearerToken")
+        return httpGet
+    }
+
+    private fun createHttpRequest(httpRequest: HttpRequest, bearerToken: String): HttpRequestBase {
+        val uriBuilder = URIBuilder(twitterProperties.twitterV2RulesBaseUrl)
+        var request = when (httpRequest) {
+            POST -> HttpPost(uriBuilder.build())
+            GET -> HttpGet(uriBuilder.build())
+        }
+        request.setHeaders(
+            arrayOf(
+                BasicHeader("Authorization", "Bearer $bearerToken"),
+                BasicHeader("Content-type", "application/json")
+            )
+        )
+        return request
     }
 }
