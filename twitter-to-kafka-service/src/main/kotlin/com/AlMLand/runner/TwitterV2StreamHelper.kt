@@ -1,6 +1,6 @@
 package com.AlMLand.runner
 
-import com.AlMLand.config.Configuration
+import com.AlMLand.config.TwitterProperties
 import com.AlMLand.listener.TwitterStatusListener
 import org.apache.http.client.config.CookieSpecs
 import org.apache.http.client.config.RequestConfig
@@ -36,14 +36,14 @@ private const val TWEET_AS_ROW_JSON = """
 @Component
 @ConditionalOnExpression("\${twitter-to-kafka-service.enable-v2-tweets} && not \${twitter-to-kafka-service.enable-mock-tweets}")
 open class TwitterV2StreamHelper(
-    private val configuration: Configuration,
+    private val twitterProperties: TwitterProperties,
     private val twitterStatusListener: TwitterStatusListener
 ) {
 
     fun connectStream(bearerToken: String) {
         val httpClient = HttpClients.custom()
             .setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build()).build()
-        val uriBuilder = URIBuilder(configuration.twitterV2BaseUrl)
+        val uriBuilder = URIBuilder(twitterProperties.twitterV2BaseUrl)
         val httpGet = HttpGet(uriBuilder.build())
         httpGet.setHeader("Authorization", "Bearer $bearerToken")
 
@@ -80,7 +80,7 @@ open class TwitterV2StreamHelper(
     private fun createRules(bearerToken: String, rules: Map<String, String>) {
         val httpClient = HttpClients.custom()
             .setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build()).build()
-        val uriBuilder = URIBuilder(configuration.twitterV2RulesBaseUrl)
+        val uriBuilder = URIBuilder(twitterProperties.twitterV2RulesBaseUrl)
         val httpPost = HttpPost(uriBuilder.build())
         httpPost.setHeaders(
             arrayOf(
@@ -98,7 +98,7 @@ open class TwitterV2StreamHelper(
     private fun deleteRules(bearerToken: String, existingRules: List<String>) {
         val httpClient = HttpClients.custom()
             .setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build()).build()
-        val uriBuilder = URIBuilder(configuration.twitterV2RulesBaseUrl)
+        val uriBuilder = URIBuilder(twitterProperties.twitterV2RulesBaseUrl)
         val httpPost = HttpPost(uriBuilder.build())
         httpPost.setHeaders(
             arrayOf(
@@ -116,7 +116,7 @@ open class TwitterV2StreamHelper(
     private fun getRules(bearerToken: String): List<String> {
         val httpClient = HttpClients.custom()
             .setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build()).build()
-        val uriBuilder = URIBuilder(configuration.twitterV2RulesBaseUrl)
+        val uriBuilder = URIBuilder(twitterProperties.twitterV2RulesBaseUrl)
         val httpGet = HttpGet(uriBuilder.build())
         httpGet.setHeaders(
             arrayOf(

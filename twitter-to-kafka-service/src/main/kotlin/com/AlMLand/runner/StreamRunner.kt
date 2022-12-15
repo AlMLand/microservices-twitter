@@ -1,6 +1,6 @@
 package com.AlMLand.runner
 
-import com.AlMLand.config.Configuration
+import com.AlMLand.config.TwitterProperties
 import com.AlMLand.listener.TwitterStatusListener
 import jakarta.annotation.PreDestroy
 import org.slf4j.LoggerFactory
@@ -20,7 +20,7 @@ sealed interface StreamRunner {
         havingValue = "false"
     )
     open class TwitterStreamRunner(
-        private val configuration: Configuration,
+        private val twitterProperties: TwitterProperties,
         private val twitterStatusListener: TwitterStatusListener,
         private val twitterStream: TwitterStream
     ) : StreamRunner {
@@ -32,7 +32,7 @@ sealed interface StreamRunner {
         }
 
         private fun addFilter() {
-            val keywords = configuration.twitterKeywords.toTypedArray()
+            val keywords = twitterProperties.twitterKeywords.toTypedArray()
             twitterStream.filter(FilterQuery(*keywords))
             logger.info("Starts filtering twitter stream for keywords {}", keywords.joinToString(", "))
         }
@@ -47,13 +47,13 @@ sealed interface StreamRunner {
     @Component
     @ConditionalOnExpression("\${twitter-to-kafka-service.enable-v2-tweets} && not \${twitter-to-kafka-service.enable-mock-tweets}")
     open class TwitterV2StreamRunner(
-        private val configuration: Configuration,
+        private val twitterProperties: TwitterProperties,
         private val twitterV2StreamHelper: TwitterV2StreamHelper
     ) : StreamRunner {
         private val logger = LoggerFactory.getLogger(StreamRunner.TwitterV2StreamRunner::class.java)
 
         override fun start() {
-            val bearerToken: String? = configuration.twitterV2BearerToken
+            val bearerToken: String? = twitterProperties.twitterV2BearerToken
             bearerToken?.let {
                 try {
                     twitterV2StreamHelper.setupRules(bearerToken, getRules())
@@ -67,7 +67,7 @@ sealed interface StreamRunner {
         }
 
         private fun getRules(): Map<String, String> {
-            val keywords = configuration.twitterKeywords
+            val keywords = twitterProperties.twitterKeywords
             val rules = keywords.associateWith { "Keyword: $it" }
             logger.info("Created filter for twitter stream for keywords {}", keywords)
             return rules

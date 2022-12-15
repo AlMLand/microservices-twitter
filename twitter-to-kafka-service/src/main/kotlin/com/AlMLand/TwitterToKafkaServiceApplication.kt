@@ -1,6 +1,7 @@
 package com.AlMLand
 
-import com.AlMLand.config.Configuration
+import com.AlMLand.config.CommonProperties
+import com.AlMLand.config.TwitterProperties
 import com.AlMLand.runner.StreamRunner
 import org.slf4j.LoggerFactory
 import org.springframework.boot.CommandLineRunner
@@ -15,14 +16,15 @@ fun main(args: Array<String>) {
 
 @SpringBootApplication
 open class TwitterToKafkaServiceApplication(
-    private val configuration: Configuration,
+    private val commonProperties: CommonProperties,
+    private val twitterProperties: TwitterProperties,
     private val streamRunner: StreamRunner
 ) :
     CommandLineRunner {
     override fun run(vararg args: String?) {
         logger.info(
-            "${configuration.appStart}${configuration.infoMessage}: " +
-                    configuration.twitterKeywords.joinToString(", ")
+            "${commonProperties.appStart}${commonProperties.infoMessage}: " +
+                    twitterProperties.twitterKeywords.joinToString(", ")
         )
         streamRunner.start()
     }
