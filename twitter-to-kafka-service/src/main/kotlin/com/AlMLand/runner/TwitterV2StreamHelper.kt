@@ -29,16 +29,9 @@ import java.util.Locale.ENGLISH
 // https://github.com/twitterdev/Twitter-API-v2-sample-code/blob/main/Filtered-Stream/FilteredStreamDemo.java
 private val logger = LoggerFactory.getLogger(TwitterV2StreamHelper::class.java)
 private const val TWITTER_STATUS_DATE_FORMAT = "EEE MMM dd HH:mm:ss zzz yyyy"
-
-private val TWEET_AS_ROW_JSON = "{" +
-        "\"created_at\":\"{0}\"," +
-        "\"id\":\"{1}\"," +
-        "\"text\":\"{2}\"," +
-        "\"user\":{\"id\":\"{3}\"}" +
-        "}"
-//private const val TWEET_AS_ROW_JSON = """
-//    {"created_at":"{0}","id":"{1}","text":"{2}","user":{"id":"{3}"}}
-//"""
+private const val TWEET_AS_ROW_JSON = """
+    {"created_at":"{0}","id":"{1}","text":"{2}","user":{"id":"{3}"}}
+"""
 
 @Component
 @ConditionalOnExpression("\${twitter-to-kafka-service.enable-v2-tweets} && not \${twitter-to-kafka-service.enable-mock-tweets}")
@@ -92,7 +85,7 @@ open class TwitterV2StreamHelper(
         httpPost.setHeaders(
             arrayOf(
                 BasicHeader("Authorization", "Bearer $bearerToken"),
-                BasicHeader("content-type", "application/json")
+                BasicHeader("Content-type", "application/json")
             )
         )
         val body = StringEntity(getFormattedString("{\"add\": [%s]}", rules))
