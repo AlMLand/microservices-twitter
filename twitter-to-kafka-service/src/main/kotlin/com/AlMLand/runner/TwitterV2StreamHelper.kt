@@ -149,8 +149,11 @@ open class TwitterV2StreamHelper(
         val result = when (ids.size) {
             1 -> "\"${ids[0]}\""
             else -> {
-                val joinedIds = ids.joinToString(prefix = "\"", postfix = "\",")
-                joinedIds.substring(0, joinedIds.length - 1)
+                val sb = StringBuilder()
+                for (id in ids) {
+                    sb.append("\"$id\",")
+                }
+                sb.substring(0, sb.length - 1)
             }
         }
         return String.format(string, result)
