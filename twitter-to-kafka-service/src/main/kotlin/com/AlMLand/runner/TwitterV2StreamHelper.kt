@@ -61,7 +61,7 @@ open class TwitterV2StreamHelper(
             var line = reader.readLine()
             while (line != null) {
                 line = reader.readLine()
-                if (line != null && line.isNotEmpty()) {
+                if (line.isNotEmpty()) {
                     val tweet = getFormattedTweet(line)
                     var status: Status? = null
                     try {
