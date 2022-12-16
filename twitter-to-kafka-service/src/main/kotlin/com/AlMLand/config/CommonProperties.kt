@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 @ConfigurationProperties(prefix = "twitter-to-kafka-service.common")
-open class CommonProperties(
+class CommonProperties(
     var appStart: String = "",
     var infoMessage: String = ""
 )

@@ -1,5 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+plugins {
+    id("org.jetbrains.kotlin.plugin.spring") version "1.7.21"
+}
+
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {

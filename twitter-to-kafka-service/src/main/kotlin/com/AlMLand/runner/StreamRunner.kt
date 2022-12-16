@@ -19,7 +19,7 @@ sealed interface StreamRunner {
         name = ["twitter-to-kafka-service.enable-v2-tweets"],
         havingValue = "false"
     )
-    open class TwitterStreamRunner(
+    class TwitterStreamRunner(
         private val twitterProperties: TwitterProperties,
         private val twitterStatusListener: TwitterStatusListener,
         private val twitterStream: TwitterStream
@@ -46,7 +46,7 @@ sealed interface StreamRunner {
 
     @Component
     @ConditionalOnExpression("\${twitter-to-kafka-service.enable-v2-tweets} && not \${twitter-to-kafka-service.enable-mock-tweets}")
-    open class TwitterV2StreamRunner(
+    class TwitterV2StreamRunner(
         private val twitterProperties: TwitterProperties,
         private val twitterV2StreamHelper: TwitterV2StreamHelper
     ) : StreamRunner {

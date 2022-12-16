@@ -15,7 +15,7 @@ fun main(args: Array<String>) {
 }
 
 @SpringBootApplication
-open class TwitterToKafkaServiceApplication(
+class TwitterToKafkaServiceApplication(
     private val commonProperties: CommonProperties,
     private val twitterProperties: TwitterProperties,
     private val streamRunner: StreamRunner

@@ -42,7 +42,7 @@ enum class HttpRequest { GET, POST, DEFAULT }
 
 @Component
 @ConditionalOnExpression("\${twitter-to-kafka-service.enable-v2-tweets} && not \${twitter-to-kafka-service.enable-mock-tweets}")
-open class TwitterV2StreamHelper(
+class TwitterV2StreamHelper(
     private val twitterProperties: TwitterProperties,
     private val twitterStatusListener: TwitterStatusListener
 ) {

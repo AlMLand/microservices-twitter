@@ -4,6 +4,7 @@ plugins {
     id("org.springframework.boot") version "3.0.0"
     id("io.spring.dependency-management") version "1.1.0"
     id("io.github.zafkiel1312.verifyfeign") version "0.4"
+    id("org.jetbrains.kotlin.plugin.allopen") version "1.7.21"
     kotlin("jvm") version "1.7.21"
     kotlin("plugin.spring") version "1.7.21"
 }
@@ -24,5 +25,6 @@ project("twitter-to-kafka-service") {
         plugin("org.springframework.boot")
         plugin("io.spring.dependency-management")
         plugin("io.github.zafkiel1312.verifyfeign")
+        plugin("org.jetbrains.kotlin.plugin.allopen")
     }
 }
