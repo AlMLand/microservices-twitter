@@ -18,6 +18,7 @@ dependencies {
     implementation("org.twitter4j:twitter4j-stream:4.0.7")
     implementation("org.json:json:20220924")
     implementation("org.apache.httpcomponents:httpclient:4.5.13")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
