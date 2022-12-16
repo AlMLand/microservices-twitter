@@ -19,6 +19,7 @@ dependencies {
     implementation("org.json:json:20220924")
     implementation("org.apache.httpcomponents:httpclient:4.5.13")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.1")
+    implementation("io.github.openfeign:feign-jackson:9.3.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
