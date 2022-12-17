@@ -1,0 +1,31 @@
+{String -> data=
+	LinkedHashMap -> {String -> 	author_id=1111111111,
+					  String -> 	created_at=1011-11-17T22:11:11.000Z,
+					  ArrayList -> 	edit_history_tweet_ids=[
+											String ->	11111111111111
+										],
+					  String -> 	id=111111111111111,
+					  String -> 	text=@aaaaaaaaaaaa @aaaaaaaaa Oq ele usa de droga? Não me ofereçam},
+String -> includes=
+	ArrayList -> {users=[
+						LinkedHashMap ->	{
+											String ->	id=1111111111111,
+											String ->	name=aaa ?,
+											String ->	username=aaaaaaaaa
+											},
+						LinkedHashMap ->	{
+											String ->	id=1111111111111111111111,
+											String ->	name=aaaaaaaaaaaa,
+											String ->	username=1111111111
+											},
+						LinkedHashMap ->	{
+											String ->	id=11111111111,
+											String ->	name=aaaaaaaaa,
+											String ->	username=aaaaaaaaaa
+											}
+						]},
+String -> matching_rules=
+	ArrayList -> [
+					{String ->	id=111111111111111111111,
+					 String ->	tag=Keyword: USA}
+				]}
