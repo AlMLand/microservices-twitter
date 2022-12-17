@@ -7,5 +7,5 @@ import twitter4j.TwitterStreamFactory
 @Configuration
 class AppConfiguration {
     @Bean
-    open fun twitterStream() = TwitterStreamFactory().instance
+    fun twitterStream() = TwitterStreamFactory().instance
 }
