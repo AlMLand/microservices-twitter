@@ -9,5 +9,6 @@ class TwitterProperties(
     var twitterKeywords: List<String> = listOf(),
     var twitterV2BaseUrl: String = "",
     var twitterV2RulesBaseUrl: String = "",
-    var twitterV2BearerToken: String = ""
+    var twitterV2BearerToken: String = "",
+    var twitterTweetsLimit: Int = 0
 )
