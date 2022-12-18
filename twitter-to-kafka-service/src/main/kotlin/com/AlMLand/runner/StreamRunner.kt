@@ -6,7 +6,6 @@ import com.AlMLand.listener.TwitterStatusListener
 import jakarta.annotation.PreDestroy
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 import twitter4j.FilterQuery
 import twitter4j.TwitterStream
@@ -16,9 +15,10 @@ sealed interface StreamRunner {
     fun start()
 
     @Component
-    @ConditionalOnProperty(
-        name = ["twitter-to-kafka-service.enable-v2-tweets && not \${twitter-to-kafka-service.enable-feign-tweets}"],
-        havingValue = "false"
+    @ConditionalOnExpression(
+        "not \${twitter-to-kafka-service.enable-v2-tweets} " +
+                "&& not \${twitter-to-kafka-service.enable-feign-tweets}" +
+                "&& not \${twitter-to-kafka-service.enable-mock-tweets}"
     )
     class TwitterStreamRunner(
         private val twitterProperties: TwitterProperties,
@@ -48,6 +48,7 @@ sealed interface StreamRunner {
     @Component
     @ConditionalOnExpression(
         "\${twitter-to-kafka-service.enable-v2-tweets} " +
+                "&& not \${twitter-to-kafka-service.enable-feign-tweets} " +
                 "&& not \${twitter-to-kafka-service.enable-mock-tweets}"
     )
     class TwitterV2StreamRunner(

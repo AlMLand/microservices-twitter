@@ -8,9 +8,15 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import feign.Feign
 import feign.jackson.JacksonDecoder
 import feign.jackson.JacksonEncoder
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
+@ConditionalOnExpression(
+    "\${twitter-to-kafka-service.enable-feign-tweets} " +
+            "&& not \${twitter-to-kafka-service.enable-v2-tweets} " +
+            "&& not \${twitter-to-kafka-service.enable-mock-tweets}"
+)
 @Configuration
 class FeignConfiguration(private val twitterProperties: TwitterProperties) {
 

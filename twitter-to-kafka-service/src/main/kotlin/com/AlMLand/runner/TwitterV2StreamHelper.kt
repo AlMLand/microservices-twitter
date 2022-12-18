@@ -31,7 +31,11 @@ private const val BODY_DELETE_TEMPLATE = "{\"delete\":{\"ids\":[%s]}}"
 enum class HttpRequest { GET, POST, DEFAULT }
 
 @Component
-@ConditionalOnExpression("\${twitter-to-kafka-service.enable-v2-tweets} && not \${twitter-to-kafka-service.enable-mock-tweets}")
+@ConditionalOnExpression(
+    "\${twitter-to-kafka-service.enable-v2-tweets} " +
+            "&& not \${twitter-to-kafka-service.enable-feign-tweets} " +
+            "&& not \${twitter-to-kafka-service.enable-mock-tweets}"
+)
 class TwitterV2StreamHelper(
     private val twitterProperties: TwitterProperties,
     private val twitterStatusListener: TwitterStatusListener,
