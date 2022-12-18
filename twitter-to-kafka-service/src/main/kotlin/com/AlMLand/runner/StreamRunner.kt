@@ -1,6 +1,7 @@
 package com.AlMLand.runner
 
 import com.AlMLand.config.TwitterProperties
+import com.AlMLand.feign.service.TwitterFeignService
 import com.AlMLand.listener.TwitterStatusListener
 import jakarta.annotation.PreDestroy
 import org.slf4j.LoggerFactory
@@ -16,7 +17,7 @@ sealed interface StreamRunner {
 
     @Component
     @ConditionalOnProperty(
-        name = ["twitter-to-kafka-service.enable-v2-tweets"],
+        name = ["twitter-to-kafka-service.enable-v2-tweets && not \${twitter-to-kafka-service.enable-feign-tweets}"],
         havingValue = "false"
     )
     class TwitterStreamRunner(
@@ -45,7 +46,10 @@ sealed interface StreamRunner {
     }
 
     @Component
-    @ConditionalOnExpression("\${twitter-to-kafka-service.enable-v2-tweets} && not \${twitter-to-kafka-service.enable-mock-tweets}")
+    @ConditionalOnExpression(
+        "\${twitter-to-kafka-service.enable-v2-tweets} " +
+                "&& not \${twitter-to-kafka-service.enable-mock-tweets}"
+    )
     class TwitterV2StreamRunner(
         private val twitterProperties: TwitterProperties,
         private val twitterV2StreamHelper: TwitterV2StreamHelper
@@ -53,17 +57,13 @@ sealed interface StreamRunner {
         private val logger = LoggerFactory.getLogger(StreamRunner.TwitterV2StreamRunner::class.java)
 
         override fun start() {
-            val bearerToken: String? = twitterProperties.twitterV2BearerToken
-            bearerToken?.let {
-                try {
-                    twitterV2StreamHelper.setupRules(bearerToken, getRules())
-                    twitterV2StreamHelper.connectStream(bearerToken)
-                } catch (re: RuntimeException) {
-                    logger.error("Error occurred by streaming tweets")
-                    throw re
-                }
+            try {
+                twitterV2StreamHelper.setupRules(getRules())
+                twitterV2StreamHelper.connectStream()
+            } catch (re: RuntimeException) {
+                logger.error("Error occurred by streaming tweets")
+                throw re
             }
-                ?: throw IllegalArgumentException("There was a problem getting with bearer token")
         }
 
         private fun getRules(): Map<String, String> {
@@ -74,4 +74,15 @@ sealed interface StreamRunner {
         }
     }
 
+    @Component
+    @ConditionalOnExpression(
+        "\${twitter-to-kafka-service.enable-feign-tweets} " +
+                "&& not \${twitter-to-kafka-service.enable-v2-tweets} " +
+                "&& not \${twitter-to-kafka-service.enable-mock-tweets}"
+    )
+    class TwitterFeignStreamRunner(private val twitterFeignService: TwitterFeignService) : StreamRunner {
+        override fun start() {
+            twitterFeignService.getTweets()
+        }
+    }
 }
