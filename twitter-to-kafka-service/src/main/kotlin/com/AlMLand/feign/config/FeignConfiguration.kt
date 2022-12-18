@@ -1,7 +1,7 @@
 package com.AlMLand.feign.config
 
 import com.AlMLand.config.TwitterProperties
-import com.AlMLand.feign.controller.TwitterClient
+import com.AlMLand.feign.controller.TwitterFeignClient
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -18,7 +18,7 @@ class FeignConfiguration(private val twitterProperties: TwitterProperties) {
     fun twitterClient() = Feign.builder()
         .encoder(JacksonEncoder(getObjectMapper()))
         .decoder(JacksonDecoder(getObjectMapper()))
-        .target(TwitterClient::class.java, twitterProperties.twitterV2BaseUrl)
+        .target(TwitterFeignClient::class.java, twitterProperties.twitterV2BaseUrl)
 
     private fun getObjectMapper() = ObjectMapper().registerModule(
         KotlinModule.Builder()

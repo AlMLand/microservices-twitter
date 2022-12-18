@@ -1,6 +1,6 @@
 import com.AlMLand.TwitterToKafkaServiceApplication
 import com.AlMLand.config.TwitterProperties
-import com.AlMLand.feign.controller.TwitterClient
+import com.AlMLand.feign.controller.TwitterFeignClient
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -14,12 +14,12 @@ import org.springframework.test.context.ActiveProfiles
     webEnvironment = RANDOM_PORT
 )
 @SuppressWarnings("MaxLineLength")
-class TwitterClientTest @Autowired constructor(
-    private val twitterClient: TwitterClient, private val twitterProperties: TwitterProperties
+class TwitterFeignClientTest @Autowired constructor(
+    private val twitterFeignClient: TwitterFeignClient, private val twitterProperties: TwitterProperties
 ) {
     @Test
     fun `getTweet, should return live one tweet, show what for object is returned`() {
-        val response = twitterClient.getTweet(twitterProperties.twitterV2BearerToken)
+        val response = twitterFeignClient.getTweet(twitterProperties.twitterV2BearerToken)
 
         val expectedKeys = listOf("data", "includes", "matching_rules")
         response.keys.forEach { assertTrue(expectedKeys.contains(it)) }
