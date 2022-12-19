@@ -1,5 +1,6 @@
 package com.AlMLand.common
 
+import com.AlMLand.config.TwitterProperties
 import com.AlMLand.listener.TwitterStatusListener
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
@@ -20,7 +21,18 @@ private const val TWEET_AS_ROW_JSON = """
 private val logger = LoggerFactory.getLogger(CommonTweetService::class.java)
 
 @Service
-class CommonTweetService(private val twitterStatusListener: TwitterStatusListener) {
+class CommonTweetService(
+    private val twitterStatusListener: TwitterStatusListener,
+    private val twitterProperties: TwitterProperties
+) {
+
+    fun getRules(): Map<String, String> {
+        val keywords = twitterProperties.twitterKeywords
+        val rules = keywords.associateWith { "Keyword: $it" }
+        logger.info("Created filter for twitter stream for keywords {}", keywords)
+        return rules
+    }
+
     fun setTweetToTwitterStatusListener(line: String) {
         if (line.isNotEmpty()) {
             val tweet = getFormattedTweet(line)
@@ -53,4 +65,5 @@ class CommonTweetService(private val twitterStatusListener: TwitterStatusListene
         }
         return tweet
     }
+
 }

@@ -1,5 +1,6 @@
 package com.AlMLand.runner
 
+import com.AlMLand.common.CommonTweetService
 import com.AlMLand.config.TwitterProperties
 import com.AlMLand.feign.service.TwitterFeignService
 import com.AlMLand.listener.TwitterStatusListener
@@ -25,7 +26,7 @@ sealed interface StreamRunner {
         private val twitterStatusListener: TwitterStatusListener,
         private val twitterStream: TwitterStream
     ) : StreamRunner {
-        private val logger = LoggerFactory.getLogger(StreamRunner.TwitterStreamRunner::class.java)
+        private val logger = LoggerFactory.getLogger(TwitterStreamRunner::class.java)
 
         override fun start() {
             twitterStream.addListener(twitterStatusListener)
@@ -52,26 +53,19 @@ sealed interface StreamRunner {
                 "&& not \${twitter-to-kafka-service.enable-mock-tweets}"
     )
     class TwitterV2StreamRunner(
-        private val twitterProperties: TwitterProperties,
+        private val commonTweetService: CommonTweetService,
         private val twitterV2StreamHelper: TwitterV2StreamHelper
     ) : StreamRunner {
-        private val logger = LoggerFactory.getLogger(StreamRunner.TwitterV2StreamRunner::class.java)
+        private val logger = LoggerFactory.getLogger(TwitterV2StreamRunner::class.java)
 
         override fun start() {
             try {
-                twitterV2StreamHelper.setupRules(getRules())
+                twitterV2StreamHelper.setupRules(commonTweetService.getRules())
                 twitterV2StreamHelper.connectStream()
             } catch (re: RuntimeException) {
                 logger.error("Error occurred by streaming tweets")
                 throw re
             }
-        }
-
-        private fun getRules(): Map<String, String> {
-            val keywords = twitterProperties.twitterKeywords
-            val rules = keywords.associateWith { "Keyword: $it" }
-            logger.info("Created filter for twitter stream for keywords {}", keywords)
-            return rules
         }
     }
 
@@ -81,8 +75,12 @@ sealed interface StreamRunner {
                 "&& not \${twitter-to-kafka-service.enable-v2-tweets} " +
                 "&& not \${twitter-to-kafka-service.enable-mock-tweets}"
     )
-    class TwitterFeignStreamRunner(private val twitterFeignService: TwitterFeignService) : StreamRunner {
+    class TwitterFeignStreamRunner(
+        private val twitterFeignService: TwitterFeignService,
+        private val commonTweetService: CommonTweetService
+    ) : StreamRunner {
         override fun start() {
+            twitterFeignService.setupRules(commonTweetService.getRules())
             twitterFeignService.getTweets()
         }
     }
