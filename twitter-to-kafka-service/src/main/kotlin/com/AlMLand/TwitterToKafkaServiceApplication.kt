@@ -9,8 +9,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.core.env.Environment
 
-private val logger = LoggerFactory.getLogger(TwitterToKafkaServiceApplication::class.java)
-
 fun main(args: Array<String>) {
     runApplication<TwitterToKafkaServiceApplication>(*args)
 }
@@ -23,6 +21,9 @@ class TwitterToKafkaServiceApplication(
     private var environment: Environment
 ) :
     CommandLineRunner {
+    companion object {
+        private val logger = LoggerFactory.getLogger(TwitterToKafkaServiceApplication::class.java)
+    }
 
     override fun run(vararg args: String?) {
         logger.info(

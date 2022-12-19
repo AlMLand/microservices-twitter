@@ -9,8 +9,8 @@ twitter-to-kafka-service:
     - Kafka
     - Elasticsearch
     - Messi
-  enable-feign-tweets: true
-  enable-v2-tweets: false
+  enable-feign-tweets: false
+  enable-v2-tweets: true
   enable-mock-tweets: false
   twitter-base-url: https://api.twitter.com
   twitter-tweet-url: /2/tweets/search/stream?tweet.fields=created_at&expansions=author_id

@@ -26,7 +26,9 @@ sealed interface StreamRunner {
         private val twitterStatusListener: TwitterStatusListener,
         private val twitterStream: TwitterStream
     ) : StreamRunner {
-        private val logger = LoggerFactory.getLogger(TwitterStreamRunner::class.java)
+        companion object {
+            private val logger = LoggerFactory.getLogger(TwitterStreamRunner::class.java)
+        }
 
         override fun start() {
             twitterStream.addListener(twitterStatusListener)
@@ -56,7 +58,9 @@ sealed interface StreamRunner {
         private val commonTweetService: CommonTweetService,
         private val twitterV2StreamHelper: TwitterV2StreamHelper
     ) : StreamRunner {
-        private val logger = LoggerFactory.getLogger(TwitterV2StreamRunner::class.java)
+        companion object {
+            private val logger = LoggerFactory.getLogger(TwitterV2StreamRunner::class.java)
+        }
 
         override fun start() {
             try {

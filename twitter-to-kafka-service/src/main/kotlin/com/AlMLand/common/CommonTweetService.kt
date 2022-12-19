@@ -13,18 +13,18 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-private const val TWITTER_STATUS_DATE_FORMAT = "EEE MMM dd HH:mm:ss zzz yyyy"
-private const val TWEET_AS_ROW_JSON = """
-    {"created_at":"{0}","id":"{1}","text":"{2}","user":{"id":"{3}"}}
-"""
-
-private val logger = LoggerFactory.getLogger(CommonTweetService::class.java)
-
 @Service
 class CommonTweetService(
     private val twitterStatusListener: TwitterStatusListener,
     private val twitterProperties: TwitterProperties
 ) {
+    companion object {
+        private val logger = LoggerFactory.getLogger(CommonTweetService::class.java)
+        private const val TWITTER_STATUS_DATE_FORMAT = "EEE MMM dd HH:mm:ss zzz yyyy"
+        private const val TWEET_AS_ROW_JSON = """
+                {"created_at":"{0}","id":"{1}","text":"{2}","user":{"id":"{3}"}}
+            """
+    }
 
     fun getRules(): Map<String, String> {
         val keywords = twitterProperties.twitterKeywords
