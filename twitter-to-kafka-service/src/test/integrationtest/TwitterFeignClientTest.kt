@@ -1,6 +1,7 @@
 import com.AlMLand.TwitterToKafkaServiceApplication
 import com.AlMLand.config.TwitterProperties
 import com.AlMLand.feign.controller.TwitterFeignClient
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,11 +16,48 @@ import org.springframework.test.context.ActiveProfiles
 )
 @SuppressWarnings("MaxLineLength")
 class TwitterFeignClientTest @Autowired constructor(
-    private val twitterFeignClient: TwitterFeignClient, private val twitterProperties: TwitterProperties
+    private val twitterFeignClient: TwitterFeignClient, private val twitterProperties: TwitterProperties,
+    private val objectMapper: ObjectMapper
 ) {
+
     @Test
-    fun `getTweet, should return live one tweet, show what for object is returned`() {
-        val response = twitterFeignClient.getTweet(twitterProperties.twitterV2BearerToken)
+    fun `createRules`() {
+        val rules = twitterFeignClient.getRules(twitterProperties.twitterBearerToken)
+        val result = (rules["data"] as? ArrayList<LinkedHashMap<String, Any>>)
+            ?.map { it["id"] }
+            ?.joinToString(prefix = "\"", postfix = "\"", separator = "\",\"")
+        twitterFeignClient.deleteRules(
+            twitterProperties.twitterBearerToken,
+            String.format("{\"delete\":{\"ids\":[%s]}}", result ?: "0")
+        )
+
+    }
+
+    @Test
+    fun `deleteRules`() {
+        val rules = twitterFeignClient.getRules(twitterProperties.twitterBearerToken)
+        val result = (rules["data"] as? ArrayList<LinkedHashMap<String, Any>>)
+            ?.map { it["id"] }
+            ?.joinToString(prefix = "\"", postfix = "\"", separator = "\",\"")
+
+        twitterFeignClient.deleteRules(
+            twitterProperties.twitterBearerToken,
+            String.format("{\"delete\":{\"ids\":[%s]}}", result ?: "0")
+        )
+        val rulesAfterDeleting = twitterFeignClient.getRules(twitterProperties.twitterBearerToken)
+        assertTrue(rulesAfterDeleting["data"] == null)
+    }
+
+    @Test
+    fun `getRules - existing rules from twitter`() {
+        val rules = twitterFeignClient.getRules(twitterProperties.twitterBearerToken)
+        val json = objectMapper.writeValueAsString(rules)
+        println("TEST: $json")
+    }
+
+    @Test
+    fun `getTweet - should return live one tweet, show what for object is returned`() {
+        val response = twitterFeignClient.getTweet(twitterProperties.twitterBearerToken)
 
         val expectedKeys = listOf("data", "includes", "matching_rules")
         response.keys.forEach { assertTrue(expectedKeys.contains(it)) }
