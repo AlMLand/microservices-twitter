@@ -24,7 +24,7 @@ class FeignConfiguration(private val twitterProperties: TwitterProperties) {
     fun twitterClient() = Feign.builder()
         .encoder(JacksonEncoder(getObjectMapper()))
         .decoder(JacksonDecoder(getObjectMapper()))
-        .target(TwitterFeignClient::class.java, twitterProperties.twitterV2BaseUrl)
+        .target(TwitterFeignClient::class.java, twitterProperties.twitterBaseUrl)
 
     private fun getObjectMapper() = ObjectMapper().registerModule(
         KotlinModule.Builder()

@@ -8,13 +8,14 @@ twitter-to-kafka-service:
     - Microservices
     - Kafka
     - Elasticsearch
-    - USA
+    - Messi
   enable-feign-tweets: true
   enable-v2-tweets: false
   enable-mock-tweets: false
-  twitter-v2-base-url: https://api.twitter.com/2/tweets/search/stream?tweet.fields=created_at&expansions=author_id
-  twitter-v2-rules-base-url: https://api.twitter.com/2/tweets/search/stream/rules
-  twitter-v2-bearer-token: ${TWITTER_BEARER_TOKEN}
+  twitter-base-url: https://api.twitter.com
+  twitter-tweet-url: /2/tweets/search/stream?tweet.fields=created_at&expansions=author_id
+  twitter-rules-url: /2/tweets/search/stream/rules
+  twitter-bearer-token: ${TWITTER_BEARER_TOKEN}
   twitter-tweets-limit: 0
   common:
     app-start: App starts...
