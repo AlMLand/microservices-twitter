@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration
 import twitter4j.TwitterStreamFactory
 
 @Configuration
-open class AppConfiguration {
+class AppConfiguration {
     @Bean
-    open fun twitterStream() = TwitterStreamFactory().instance
+    fun twitterStream() = TwitterStreamFactory().instance
 }

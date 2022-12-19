@@ -5,9 +5,11 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 @ConfigurationProperties(prefix = "twitter-to-kafka-service")
-open class TwitterProperties(
+class TwitterProperties(
     var twitterKeywords: List<String> = listOf(),
-    var twitterV2BaseUrl: String = "",
-    var twitterV2RulesBaseUrl: String = "",
-    var twitterV2BearerToken: String = ""
+    var twitterBaseUrl: String = "",
+    var twitterTweetUrl: String = "",
+    var twitterRulesUrl: String = "",
+    var twitterBearerToken: String = "",
+    var twitterTweetsLimit: Int = 0
 )
