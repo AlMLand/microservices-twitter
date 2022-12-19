@@ -8,8 +8,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 import org.springframework.stereotype.Service
 
-private val logger = LoggerFactory.getLogger(TwitterFeignService::class.java)
-
 @Service
 @ConditionalOnExpression(
     "\${twitter-to-kafka-service.enable-feign-tweets} " +
@@ -23,6 +21,10 @@ class TwitterFeignService(
     private val commonTweetService: CommonTweetService,
     private val objectMapper: ObjectMapper
 ) {
+    companion object {
+        private val logger = LoggerFactory.getLogger(TwitterFeignService::class.java)
+    }
+
     fun getTweets() {
         val limit = getLimit()
         var count = 0

@@ -22,10 +22,6 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 
 // https://github.com/twitterdev/Twitter-API-v2-sample-code/blob/main/Filtered-Stream/FilteredStreamDemo.java
-private val logger = LoggerFactory.getLogger(TwitterV2StreamHelper::class.java)
-private const val DEFAULT_CHARSET = "UTF-8"
-private const val BODY_ADD_TEMPLATE = "{\"add\": [%s]}"
-private const val BODY_DELETE_TEMPLATE = "{\"delete\":{\"ids\":[%s]}}"
 
 enum class HttpRequest { GET, POST, DEFAULT }
 
@@ -40,6 +36,12 @@ class TwitterV2StreamHelper(
     private val twitterProperties: TwitterProperties,
     private val commonTweetService: CommonTweetService
 ) {
+    companion object {
+        private val logger = LoggerFactory.getLogger(TwitterV2StreamHelper::class.java)
+        private const val DEFAULT_CHARSET = "UTF-8"
+        private const val BODY_ADD_TEMPLATE = "{\"add\": [%s]}"
+        private const val BODY_DELETE_TEMPLATE = "{\"delete\":{\"ids\":[%s]}}"
+    }
 
     fun connectStream() {
         val entity = getHttpResponseEntity(twitterProperties.twitterBearerToken)

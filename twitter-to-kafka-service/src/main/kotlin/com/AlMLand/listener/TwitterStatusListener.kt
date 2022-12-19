@@ -5,10 +5,12 @@ import org.springframework.stereotype.Component
 import twitter4j.Status
 import twitter4j.StatusAdapter
 
-private val logger = LoggerFactory.getLogger(TwitterStatusListener::class.java)
-
 @Component
 class TwitterStatusListener : StatusAdapter() {
+    companion object {
+        private val logger = LoggerFactory.getLogger(TwitterStatusListener::class.java)
+    }
+
     override fun onStatus(status: Status?) {
         logger.info("Twitter status with text {}", status?.text ?: "no text available")
     }
