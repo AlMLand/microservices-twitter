@@ -23,6 +23,8 @@ class TwitterFeignService(
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(TwitterFeignService::class.java)
+        private const val BODY_ADD_TEMPLATE = "{\"add\": [%s]}"
+        private const val BODY_DELETE_TEMPLATE = "{\"delete\":{\"ids\":[%s]}}"
     }
 
     fun getTweets() {
@@ -38,7 +40,6 @@ class TwitterFeignService(
                 logger.error("Exception occur by connect to twitter server")
             }
         }
-        logger.info("App ends ... {} tweets are read", count)
     }
 
     private fun getLimit(): Int {
@@ -51,19 +52,17 @@ class TwitterFeignService(
         val answerFromTwitter = twitterFeignClient.getRules(bearerToken)
         val existingRules = formatRulesToString(answerFromTwitter)
         if (!existingRules.isNullOrBlank()) {
-            twitterFeignClient.deleteRules(bearerToken, String.format("{\"delete\":{\"ids\":[%s]}}", existingRules))
+            twitterFeignClient.deleteRules(bearerToken, String.format(BODY_DELETE_TEMPLATE, existingRules))
         }
         createRules(bearerToken, rules)
     }
 
     private fun createRules(bearerToken: String, rules: Map<String, String>) {
         val sb = StringBuilder()
-        for ((key, value) in rules) {
-            sb.append("{\"value\": \"$key\", \"tag\": \"$value\"},")
-        }
+        rules.forEach { (key, value) -> sb.append("{\"value\": \"$key\", \"tag\": \"$value\"},") }
         twitterFeignClient.createRules(
             bearerToken,
-            String.format("{\"add\": [%s]}", sb.toString().substring(0, sb.length - 1))
+            String.format(BODY_ADD_TEMPLATE, sb.toString().substring(0, sb.length - 1))
         )
     }
 

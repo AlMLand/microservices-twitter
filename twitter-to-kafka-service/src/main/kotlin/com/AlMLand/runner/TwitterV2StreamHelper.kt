@@ -130,20 +130,13 @@ class TwitterV2StreamHelper(
     }
 
     private fun getFormattedString(ids: List<String>): String {
-        val result = when (ids.size) {
-            1 -> "\"${ids[0]}\""
-            else -> {
-                ids.joinToString(separator = "\",\"", prefix = "\"", postfix = "\"")
-            }
-        }
+        val result = ids.joinToString(separator = "\",\"", prefix = "\"", postfix = "\"")
         return String.format(BODY_DELETE_TEMPLATE, result)
     }
 
     private fun getFormattedString(rules: Map<String, String>): String {
         val sb = StringBuilder()
-        for ((key, value) in rules) {
-            sb.append("{\"value\": \"$key\", \"tag\": \"$value\"},")
-        }
+        rules.forEach { (key, value) -> sb.append("{\"value\": \"$key\", \"tag\": \"$value\"},") }
         return String.format(BODY_ADD_TEMPLATE, sb.toString().substring(0, sb.length - 1))
     }
 
