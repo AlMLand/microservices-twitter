@@ -9,9 +9,12 @@ twitter-to-kafka-service:
     - Kafka
     - Elasticsearch
     - Messi
-  enable-feign-tweets: true
+  enable-mock-tweets: true
+  mock-min-tweet-length: 5
+  mock-max-tweet-length: 15
+  mock-sleep-ms: 10000
+  enable-feign-tweets: false
   enable-v2-tweets: false
-  enable-mock-tweets: false
   twitter-base-url: https://api.twitter.com
   twitter-tweet-url: /2/tweets/search/stream?tweet.fields=created_at&expansions=author_id
   twitter-rules-url: /2/tweets/search/stream/rules
