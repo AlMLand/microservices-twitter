@@ -2,6 +2,7 @@ package com.AlMLand.feign.service
 
 import com.AlMLand.common.CommonTweetService
 import com.AlMLand.config.TwitterProperties
+import com.AlMLand.exception.RequestTweetException
 import com.AlMLand.feign.controller.TwitterFeignClient
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
@@ -36,8 +37,8 @@ class TwitterFeignService(
                 val tweetAsJson = objectMapper.writeValueAsString(tweet)
                 commonTweetService.setTweetToTwitterStatusListener(tweetAsJson)
                 count++
-            } catch (re: RuntimeException) {
-                logger.error("Exception occur by connect to twitter server")
+            } catch (rte: RequestTweetException) {
+                logger.error("Exception occur by connect to twitter server", rte)
             }
         }
     }

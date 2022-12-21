@@ -2,6 +2,7 @@ package com.AlMLand.runner
 
 import com.AlMLand.common.CommonTweetService
 import com.AlMLand.config.TwitterProperties
+import com.AlMLand.exception.StreamTweetsException
 import com.AlMLand.feign.service.TwitterFeignService
 import com.AlMLand.listener.TwitterStatusListener
 import jakarta.annotation.PreDestroy
@@ -66,7 +67,7 @@ sealed interface StreamRunner {
             try {
                 twitterV2StreamHelper.setupRules(commonTweetService.getRules())
                 twitterV2StreamHelper.connectStream()
-            } catch (re: RuntimeException) {
+            } catch (re: StreamTweetsException) {
                 logger.error("Error occurred by streaming tweets")
                 throw re
             }
