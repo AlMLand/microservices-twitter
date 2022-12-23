@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 class FeignConfiguration(private val twitterProperties: TwitterProperties) {
 
-    @Bean("twitterClient")
+    @Bean
     fun twitterClient() = Feign.builder()
         .encoder(JacksonEncoder(getObjectMapper()))
         .decoder(JacksonDecoder(getObjectMapper()))

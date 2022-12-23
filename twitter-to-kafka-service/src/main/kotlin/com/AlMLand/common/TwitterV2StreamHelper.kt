@@ -1,8 +1,7 @@
-package com.AlMLand.runner
+package com.AlMLand.common
 
-import com.AlMLand.common.CommonTweetService
+import com.AlMLand.common.HttpRequest.*
 import com.AlMLand.config.TwitterProperties
-import com.AlMLand.runner.HttpRequest.*
 import org.apache.http.HttpEntity
 import org.apache.http.client.config.CookieSpecs
 import org.apache.http.client.config.RequestConfig
