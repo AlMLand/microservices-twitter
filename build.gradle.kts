@@ -1,5 +1,3 @@
-//import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     id("org.springframework.boot") version "3.0.0"
     id("io.spring.dependency-management") version "1.1.0"
@@ -18,6 +16,18 @@ repositories {
 }
 
 project("twitter-to-kafka-service") {
+    apply {
+        group = "com.AlMLand"
+        version = "0.0.1-SNAPSHOT"
+        plugin("kotlin")
+        plugin("org.springframework.boot")
+        plugin("io.spring.dependency-management")
+        plugin("io.github.zafkiel1312.verifyfeign")
+        plugin("org.jetbrains.kotlin.plugin.allopen")
+    }
+}
+
+project("app-config") {
     apply {
         group = "com.AlMLand"
         version = "0.0.1-SNAPSHOT"

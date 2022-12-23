@@ -11,11 +11,11 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":app-config"))
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-    implementation("org.springframework.boot:spring-boot-starter")
-    implementation("org.springframework.cloud:spring-cloud-starter-openfeign:3.1.5")
+    implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.0.0")
     implementation("org.twitter4j:twitter4j-stream:4.0.7")
     implementation("org.json:json:20220924")
     implementation("org.apache.httpcomponents:httpclient:4.5.14")

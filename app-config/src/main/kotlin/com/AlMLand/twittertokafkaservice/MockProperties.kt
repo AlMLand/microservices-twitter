@@ -1,4 +1,4 @@
-package com.AlMLand.config
+package com.AlMLand.twittertokafkaservice
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression
 import org.springframework.boot.context.properties.ConfigurationProperties

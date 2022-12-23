@@ -1,12 +1,13 @@
 package com.AlMLand
 
-import com.AlMLand.config.CommonProperties
-import com.AlMLand.config.TwitterProperties
 import com.AlMLand.runner.StreamRunner
+import com.AlMLand.twittertokafkaservice.CommonProperties
+import com.AlMLand.twittertokafkaservice.TwitterProperties
 import org.slf4j.LoggerFactory
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import org.springframework.context.annotation.ComponentScan
 import org.springframework.core.env.Environment
 
 fun main(args: Array<String>) {
@@ -14,6 +15,7 @@ fun main(args: Array<String>) {
 }
 
 @SpringBootApplication
+@ComponentScan("com.AlMLand")
 class TwitterToKafkaServiceApplication(
     private val commonProperties: CommonProperties,
     private val twitterProperties: TwitterProperties,
