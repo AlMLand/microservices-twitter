@@ -1,7 +1,7 @@
 package com.AlMLand.common
 
-import com.AlMLand.config.TwitterProperties
 import com.AlMLand.listener.TwitterStatusListener
+import com.AlMLand.twittertokafkaservice.TwitterProperties
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service

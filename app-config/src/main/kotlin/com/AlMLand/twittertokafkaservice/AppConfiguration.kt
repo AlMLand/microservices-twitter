@@ -1,4 +1,4 @@
-package com.AlMLand.config
+package com.AlMLand.twittertokafkaservice
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

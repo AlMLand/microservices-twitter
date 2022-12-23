@@ -1,7 +1,7 @@
 package com.AlMLand.common
 
 import com.AlMLand.common.HttpRequest.*
-import com.AlMLand.config.TwitterProperties
+import com.AlMLand.twittertokafkaservice.TwitterProperties
 import org.apache.http.HttpEntity
 import org.apache.http.client.config.CookieSpecs
 import org.apache.http.client.config.RequestConfig

@@ -1,8 +1,8 @@
 package com.AlMLand.runner
 
-import com.AlMLand.config.MockProperties
 import com.AlMLand.exception.TwitterStatusException
 import com.AlMLand.listener.TwitterStatusListener
+import com.AlMLand.twittertokafkaservice.MockProperties
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
