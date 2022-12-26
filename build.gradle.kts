@@ -38,3 +38,15 @@ project("app-config") {
         plugin("org.jetbrains.kotlin.plugin.allopen")
     }
 }
+
+project("kafka") {
+    apply {
+        group = "com.AlMLand"
+        version = "0.0.1-SNAPSHOT"
+        plugin("kotlin")
+        plugin("org.springframework.boot")
+        plugin("io.spring.dependency-management")
+        plugin("io.github.zafkiel1312.verifyfeign")
+        plugin("org.jetbrains.kotlin.plugin.allopen")
+    }
+}

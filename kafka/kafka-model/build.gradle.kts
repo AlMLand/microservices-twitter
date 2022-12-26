@@ -1,19 +1,17 @@
 plugins {
     id("java")
+    id("com.github.davidmc24.gradle.plugin.avro") version "1.5.0"
 }
-
-group = "com.AlMLand"
-version = "0.0.1-SNAPSHOT"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
+    implementation("org.apache.avro:avro:1.11.1")
 }
 
-tasks.getByName<Test>("test") {
-    useJUnitPlatform()
-}
+// wenn man die files nicht im build(als 'generated source root') haben möchte, sondern direkt in 'java' ordner
+//tasks.withType<com.github.davidmc24.gradle.plugin.avro.GenerateAvroJavaTask> {
+//    setOutputDir(file("src/main/java/"))
+//}
