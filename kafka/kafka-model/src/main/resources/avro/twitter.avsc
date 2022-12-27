@@ -1,6 +1,6 @@
 {
-    "name": "TwitterAvroModel",
     "namespace": "com.AlMLand.kafka.avro.model",
+    "name": "TwitterAvroModel",
     "type": "record",
     "fields": [
         {"name": "userId", "type": "long"},
