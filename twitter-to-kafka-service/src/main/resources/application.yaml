@@ -24,3 +24,10 @@ twitter-to-kafka-service:
     app-start: App starts...
     info-message: Searched keywords
 
+retry-configuration:
+  initial-interval-ms: 1000
+  max-interval-ms: 10000
+  multiplier: 2.0
+  max-attempts: 3
+  sleep-time-ms: 2000
+
