@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration
 class RetryProperties(
     var initialIntervalMs: Long,
     var maxIntervalMs: Long,
-    var multiplier: Double,
+    var multiplier: Long,
     var maxAttempts: Int,
     var sleepTimeMs: Long
 )

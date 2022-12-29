@@ -13,7 +13,7 @@ class RetryConfig(private val retryProperties: RetryProperties) {
     fun retryTemplate(): RetryTemplate = RetryTemplateBuilder()
         .exponentialBackoff(
             retryProperties.initialIntervalMs,
-            retryProperties.multiplier,
+            retryProperties.multiplier.toDouble(),
             retryProperties.maxIntervalMs
         )
         .customPolicy(SimpleRetryPolicy(retryProperties.maxAttempts))
