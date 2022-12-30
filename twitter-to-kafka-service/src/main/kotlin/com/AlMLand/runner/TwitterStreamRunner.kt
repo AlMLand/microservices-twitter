@@ -1,7 +1,7 @@
 package com.AlMLand.runner
 
 import com.AlMLand.listener.TwitterStatusListener
-import com.AlMLand.twittertokafkaservice.TwitterProperties
+import com.AlMLand.twitterToKafkaService.TwitterProperties
 import jakarta.annotation.PreDestroy
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression

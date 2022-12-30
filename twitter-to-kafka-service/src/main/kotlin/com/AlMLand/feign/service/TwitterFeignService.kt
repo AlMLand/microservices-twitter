@@ -3,7 +3,7 @@ package com.AlMLand.feign.service
 import com.AlMLand.common.CommonTweetService
 import com.AlMLand.exception.TwitterServerConnectException
 import com.AlMLand.feign.controller.TwitterFeignClient
-import com.AlMLand.twittertokafkaservice.TwitterProperties
+import com.AlMLand.twitterToKafkaService.TwitterProperties
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression

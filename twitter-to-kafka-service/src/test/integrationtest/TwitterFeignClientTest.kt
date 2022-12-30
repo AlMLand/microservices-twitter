@@ -1,6 +1,6 @@
 import com.AlMLand.TwitterToKafkaServiceApplication
 import com.AlMLand.feign.controller.TwitterFeignClient
-import com.AlMLand.twittertokafkaservice.TwitterProperties
+import com.AlMLand.twitterToKafkaService.TwitterProperties
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Disabled

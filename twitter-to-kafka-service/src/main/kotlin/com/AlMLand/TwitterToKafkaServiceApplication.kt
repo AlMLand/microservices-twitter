@@ -1,8 +1,8 @@
 package com.AlMLand
 
 import com.AlMLand.runner.StreamRunner
-import com.AlMLand.twittertokafkaservice.CommonProperties
-import com.AlMLand.twittertokafkaservice.TwitterProperties
+import com.AlMLand.twitterToKafkaService.CommonProperties
+import com.AlMLand.twitterToKafkaService.TwitterProperties
 import org.slf4j.LoggerFactory
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
