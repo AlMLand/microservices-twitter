@@ -1,19 +1,17 @@
 plugins {
-    id("java")
+    id("org.jetbrains.kotlin.plugin.spring") version "1.7.21"
 }
-
-group = "com.AlMLand"
-version = "0.0.1-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://packages.confluent.io/maven/")
+    }
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
-}
-
-tasks.getByName<Test>("test") {
-    useJUnitPlatform()
+    implementation(project(":app-configuration"))
+    implementation(project(":kafka:kafka-model"))
+    implementation("org.springframework.kafka:spring-kafka:3.0.0")
+    implementation("io.confluent:kafka-avro-serializer:7.3.1")
 }
