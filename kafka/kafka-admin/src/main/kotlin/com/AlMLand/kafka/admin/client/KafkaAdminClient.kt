@@ -28,8 +28,10 @@ class KafkaAdminClient(
     }
 
     fun createTopic() {
-        val result = try {
-            retryTemplate.execute<CreateTopicsResult, Throwable> { executeCreateTopics(it) }
+        try {
+            retryTemplate.execute<CreateTopicsResult, Throwable> { executeCreateTopics(it) }.let {
+                logger.info("Create topic, result: {}", it)
+            }
         } catch (t: Throwable) {
             throw KafkaClientException("Reached max number of retry for creating kafka topic(s)", t)
         }
@@ -43,7 +45,7 @@ class KafkaAdminClient(
                 var (retryCount, sleepTime) = Pair(1, retryProperties.sleepTimeMs)
                 while (!isTopicCreated(topics, name)) {
                     retryCount = checkRetry(retryCount, sleepTime)
-                    sleepTime = increaseSleepTime(sleepTime)
+                    sleepTime = sleepTime.times(retryProperties.multiplier)
                     topics = getTopics()
                 }
             }
@@ -69,21 +71,21 @@ class KafkaAdminClient(
         }
     }
 
-    private fun isTopicCreated(topics: Collection<TopicListing>?, topicName: String): Boolean =
+    private suspend fun isTopicCreated(topics: Collection<TopicListing>?, topicName: String): Boolean =
         topics?.any { it.name() == topicName } ?: false
 
     private fun executeCreateTopics(retryContext: RetryContext): CreateTopicsResult {
         val topicNames = kafkaProperties.topicNamesToCreate
-        val newTopics =
-            topicNames.map {
-                NewTopic(
-                    it.trim(),
-                    kafkaProperties.numberOfPartitions,
-                    kafkaProperties.replicationFactor
-                )
-            }
-        logger.info("Start with create a {} topics , attempt {}", topicNames.size, retryContext.retryCount)
-        return kafkaAdmin.createTopics(newTopics)
+        topicNames.map {
+            NewTopic(
+                it.trim(),
+                kafkaProperties.numberOfPartitions,
+                kafkaProperties.replicationFactor
+            )
+        }.let {
+            logger.info("Start with create a {} topics , attempt {}", topicNames.size, retryContext.retryCount)
+            return kafkaAdmin.createTopics(it)
+        }
     }
 
     fun checkSchemaRegistry() {
@@ -91,17 +93,15 @@ class KafkaAdminClient(
         runBlocking {
             while (!isSchemaRegistrySuccessful()) {
                 retryCount = checkRetry(retryCount, sleepTime)
-                sleepTime = increaseSleepTime(sleepTime)
+                sleepTime = sleepTime.times(retryProperties.multiplier)
             }
         }
     }
 
-    private fun increaseSleepTime(sleepTime: Long): Long = sleepTime * retryProperties.multiplier
-
     private suspend fun checkRetry(retryCount: Int, sleepTime: Long): Int {
         checkMaxRetry(retryCount, retryProperties.maxAttempts)
         delay(sleepTime)
-        return retryCount + 1
+        return retryCount.inc()
     }
 
     private fun checkMaxRetry(retryCount: Int, maxRetry: Int) {
