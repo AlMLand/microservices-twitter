@@ -7,13 +7,13 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 @ConfigurationProperties(prefix = "kafka-producer")
 class KafkaProducerProperties(
-    var keySerializerClass: String,
-    var valueSerializerClass: String,
-    var compressionType: String,
-    var ack: String,
-    var batchSize: Int,
-    var batchSizeBoostFactor: Int,
-    var linger: Int,
-    var requestTimeout: Int,
-    var retryCount: Int
+    var keySerializerClass: String = "",
+    var valueSerializerClass: String = "",
+    var compressionType: String = "",
+    var ack: String = "",
+    var batchSize: Int = 0,
+    var batchSizeBoostFactor: Int = 0,
+    var linger: Int = 0,
+    var requestTimeout: Int = 0,
+    var retryCount: Int = 0
 )
