@@ -58,8 +58,9 @@ class CommonTweetService(
             formatTweetAsJsonWithParams(it)
         }
 
-    private fun formatTweetAsJsonWithParams(params: Array<String>): String =
-        TWEET_AS_ROW_JSON.apply {
-            forEachIndexed { index, value -> replace("{$index}", value.toString()) }
-        }
+    private fun formatTweetAsJsonWithParams(params: Array<String>): String {
+        var tweet = TWEET_AS_ROW_JSON
+        params.onEachIndexed { index, param -> tweet = tweet.replace("{$index}", param) }
+        return tweet
+    }
 }

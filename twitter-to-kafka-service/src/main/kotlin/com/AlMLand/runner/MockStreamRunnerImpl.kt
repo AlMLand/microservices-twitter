@@ -41,9 +41,9 @@ class MockStreamRunnerImpl(
         launch {
             try {
                 while (true) {
-                    val status =
-                        TwitterObjectFactory.createStatus(getFormattedTweet(keywords, minTweetLength, maxTweetLength))
-                    twitterStatusListener.onStatus(status)
+                    TwitterObjectFactory.createStatus(getFormattedTweet(keywords, minTweetLength, maxTweetLength)).let {
+                        twitterStatusListener.onStatus(it)
+                    }
                     delay(sleepMs)
                 }
             } catch (tse: TwitterStatusException) {
@@ -74,23 +74,22 @@ class MockStreamRunnerImpl(
         keywords: List<String>,
         minTweetLength: Int,
         maxTweetLength: Int
-    ): String {
-        val tweet = StringBuilder()
-        val tweetLength = getRandomTweetLength(maxTweetLength, minTweetLength)
-        return tweet.apply {
+    ): String =
+        StringBuilder().apply {
+            val tweetLength = getRandomTweetLength(maxTweetLength, minTweetLength)
             for (i in 0 until tweetLength) {
                 with(Random) {
-                    append(words[nextInt(words.size)]).append(" ")
-                    if (i == tweetLength / 2) {
+                    append(words[nextInt(words.size)])
+                        .append(" ")
+                    if (i == tweetLength.div(2)) {
                         append(keywords[nextInt(keywords.size)]).append(" ")
                     }
                 }
             }
         }.toString()
-    }
 
     private fun getRandomTweetLength(maxTweetLength: Int, minTweetLength: Int) =
-        Random.nextInt(maxTweetLength - minTweetLength + 1) + minTweetLength
+        Random.nextInt(maxTweetLength - minTweetLength.inc()) + minTweetLength
 
     override fun equals(other: Any?): Boolean {
         return this === other

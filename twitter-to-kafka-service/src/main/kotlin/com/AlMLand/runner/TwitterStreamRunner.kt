@@ -30,9 +30,10 @@ class TwitterStreamRunner(
     }
 
     private fun addFilter() {
-        val keywords = twitterProperties.twitterKeywords.toTypedArray()
-        twitterStream.filter(FilterQuery(*keywords))
-        logger.info("Starts filtering twitter stream for keywords {}", keywords.joinToString(", "))
+        twitterProperties.twitterKeywords.toTypedArray().run {
+            twitterStream.filter(FilterQuery(*this))
+            logger.info("Starts filtering twitter stream for keywords {}", joinToString(", "))
+        }
     }
 
     @PreDestroy
