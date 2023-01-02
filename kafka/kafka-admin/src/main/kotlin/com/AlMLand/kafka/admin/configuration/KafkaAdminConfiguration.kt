@@ -11,6 +11,6 @@ import org.springframework.retry.annotation.EnableRetry
 @Configuration
 class KafkaAdminConfiguration(private val kafkaProperties: KafkaProperties) {
     @Bean
-    fun kafkaAdmin(): Admin =
+    fun adminClient(): Admin =
         Admin.create(mapOf(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG to kafkaProperties.bootstrapServers))
 }
