@@ -1,8 +1,7 @@
 package com.AlMLand
 
+import com.AlMLand.initialization.StreamInitializer
 import com.AlMLand.runner.StreamRunner
-import com.AlMLand.twitterToKafkaService.CommonProperties
-import com.AlMLand.twitterToKafkaService.TwitterProperties
 import org.slf4j.LoggerFactory
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -17,21 +16,20 @@ fun main(args: Array<String>) {
 @SpringBootApplication
 @ComponentScan("com.AlMLand")
 class TwitterToKafkaServiceApplication(
-    private val commonProperties: CommonProperties,
-    private val twitterProperties: TwitterProperties,
+    private var environment: Environment,
     private val streamRunner: StreamRunner,
-    private var environment: Environment
-) :
-    CommandLineRunner {
+    private val streamInitializer: StreamInitializer
+) : CommandLineRunner {
     companion object {
         private val logger = LoggerFactory.getLogger(TwitterToKafkaServiceApplication::class.java)
     }
 
     override fun run(vararg args: String?) {
-        logger.info(
-            "${commonProperties.appStart}${commonProperties.infoMessage}: " +
-                    twitterProperties.twitterKeywords.joinToString(", ")
-        )
-        if (!environment.activeProfiles.contains("test")) streamRunner.start()
+        if (!isTestProfileActive()) {
+            streamInitializer.init()
+            streamRunner.start()
+        }
     }
+
+    private fun isTestProfileActive() = environment.activeProfiles.contains("test")
 }
