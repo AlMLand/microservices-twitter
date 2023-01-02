@@ -15,6 +15,7 @@ import org.springframework.retry.support.RetryTemplate
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 
+
 @Component
 class KafkaAdminClient(
     private val kafkaProperties: KafkaProperties,
@@ -25,15 +26,18 @@ class KafkaAdminClient(
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(this::class.java)
+        private const val RETRY_LIMIT_TOPIC_CREATION = "Reached max number of retry for creating kafka topic(s)"
+        private const val RETRY_LIMIT_SCHEMA_REGISTRY = "Reached max number of retry for schema registry validate"
+        private const val RETRY_LIMIT_TOPICS = "Can't fetch all topics from kafka"
     }
 
     fun createTopic() {
         try {
             retryTemplate.execute<CreateTopicsResult, Throwable> { executeCreateTopics(it) }.let {
-                logger.info("Create topic, result: {}", it)
+                logger.info("Create topic, result: {}", it.all().get() ?: "the topic exists already")
             }
         } catch (t: Throwable) {
-            throw KafkaClientException("Reached max number of retry for creating kafka topic(s)", t)
+            throw KafkaClientException(RETRY_LIMIT_TOPIC_CREATION, t)
         }
         checkTopicsCreated()
     }
@@ -44,7 +48,7 @@ class KafkaAdminClient(
             runBlocking {
                 var (retryCount, sleepTime) = Pair(1, retryProperties.sleepTimeMs)
                 while (!isTopicCreated(topics, name)) {
-                    retryCount = checkRetry(retryCount, sleepTime)
+                    retryCount = checkRetry(retryCount, sleepTime, RETRY_LIMIT_TOPIC_CREATION)
                     sleepTime = sleepTime.times(retryProperties.multiplier)
                     topics = getTopics()
                 }
@@ -56,7 +60,7 @@ class KafkaAdminClient(
         try {
             retryTemplate.execute<Collection<TopicListing>, Throwable> { executeGetTopics(it) }
         } catch (t: Throwable) {
-            throw KafkaClientException("Reached max number of retry for creating kafka topic(s)", t)
+            throw KafkaClientException(RETRY_LIMIT_TOPICS, t)
         }
 
     private fun executeGetTopics(retryContext: RetryContext): Collection<TopicListing>? {
@@ -76,7 +80,7 @@ class KafkaAdminClient(
 
     private fun executeCreateTopics(retryContext: RetryContext): CreateTopicsResult {
         val topicNames = kafkaProperties.topicNamesToCreate
-        topicNames.map {
+        topicNames.filter { notAlreadyExists(it.trim()) }.map {
             NewTopic(
                 it.trim(),
                 kafkaProperties.numberOfPartitions,
@@ -88,24 +92,26 @@ class KafkaAdminClient(
         }
     }
 
+    private fun notAlreadyExists(topicName: String) = getTopics()?.none { it.name() == topicName } ?: true
+
     fun checkSchemaRegistry() {
         var (retryCount, sleepTime) = Pair(1, retryProperties.sleepTimeMs)
         runBlocking {
             while (!isSchemaRegistrySuccessful()) {
-                retryCount = checkRetry(retryCount, sleepTime)
+                retryCount = checkRetry(retryCount, sleepTime, RETRY_LIMIT_SCHEMA_REGISTRY)
                 sleepTime = sleepTime.times(retryProperties.multiplier)
             }
         }
     }
 
-    private suspend fun checkRetry(retryCount: Int, sleepTime: Long): Int {
-        checkMaxRetry(retryCount, retryProperties.maxAttempts)
+    private suspend fun checkRetry(retryCount: Int, sleepTime: Long, errorMessage: String): Int {
+        checkMaxRetry(retryCount, retryProperties.maxAttempts, errorMessage)
         delay(sleepTime)
         return retryCount.inc()
     }
 
-    private fun checkMaxRetry(retryCount: Int, maxRetry: Int) {
-        if (retryCount > maxRetry) throw KafkaClientException("Reached max number of retry for creating kafka topic(s)")
+    private fun checkMaxRetry(retryCount: Int, maxRetry: Int, errorMessage: String) {
+        if (retryCount > maxRetry) throw KafkaClientException(errorMessage)
     }
 
     private fun isSchemaRegistrySuccessful(): Boolean =
