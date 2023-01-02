@@ -2,16 +2,24 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.7.21"
+    id("com.github.davidmc24.gradle.plugin.avro") version "1.5.0"
 }
 
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://packages.confluent.io/maven/")
+    }
 }
 
 dependencies {
+    implementation(project(":kafka:kafka-admin"))
+    implementation(project(":kafka:kafka-model"))
+    implementation(project(":kafka:kafka-producer"))
     implementation(project(":app-configuration"))
+    implementation("org.apache.avro:avro:1.11.1")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
