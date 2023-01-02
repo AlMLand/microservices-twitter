@@ -44,10 +44,10 @@ class TwitterV2StreamHelper(
 
     fun connectStream() {
         BufferedReader(InputStreamReader(getHttpResponseEntity(twitterProperties.twitterBearerToken).content)).run {
-            readLine().let {
-                while (it != null) {
-                    commonTweetService.setTweetToTwitterStatusListener(readLine())
-                }
+            var line = readLine()
+            while (line != null) {
+                commonTweetService.setTweetToTwitterStatusListener(line)
+                line = readLine()
             }
         }
     }
@@ -133,10 +133,10 @@ class TwitterV2StreamHelper(
         }
 
     private fun getFormattedString(rules: Map<String, String>): String =
-        StringBuilder().apply {
+        with(StringBuilder()) {
             rules.forEach { (key, value) -> append("{\"value\": \"$key\", \"tag\": \"$value\"},") }
-            String.format(BODY_ADD_TEMPLATE, toString().substring(0, length - 1))
-        }.toString()
+            String.format(BODY_ADD_TEMPLATE, substring(0, length - 1))
+        }
 
     private fun getHttpClient(): CloseableHttpClient = HttpClients.custom()
         .setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build()).build()
