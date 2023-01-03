@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.jetbrains.kotlin.plugin.spring") version "1.7.21"
     id("com.github.davidmc24.gradle.plugin.avro") version "1.5.0"
+    id("com.palantir.docker") version "0.33.0"
 }
 
 java.sourceCompatibility = JavaVersion.VERSION_17
@@ -30,6 +31,12 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.1")
     implementation("io.github.openfeign:feign-jackson:12.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+}
+
+docker {
+    name = "${project.name}:${project.version}"
+    setDockerfile(File("/src/main/docker/Dockerfile"))
+    files("/build/libs/twitter-to-kafka-service-${project.version}.jar")
 }
 
 tasks.withType<KotlinCompile> {
