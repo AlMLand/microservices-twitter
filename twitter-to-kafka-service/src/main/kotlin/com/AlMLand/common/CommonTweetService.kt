@@ -1,11 +1,10 @@
 package com.AlMLand.common
 
 import com.AlMLand.listener.TwitterStatusListener
-import com.AlMLand.twittertokafkaservice.TwitterProperties
+import com.AlMLand.twitterToKafkaService.TwitterProperties
 import org.json.JSONObject
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import twitter4j.Status
 import twitter4j.TwitterException
 import twitter4j.TwitterObjectFactory
 import java.time.ZoneId
@@ -26,44 +25,42 @@ class CommonTweetService(
             """
     }
 
-    fun getRules(): Map<String, String> {
-        val keywords = twitterProperties.twitterKeywords
-        val rules = keywords.associateWith { "Keyword: $it" }
-        logger.info("Created filter for twitter stream for keywords {}", keywords)
-        return rules
-    }
+    fun getRules(): Map<String, String> =
+        twitterProperties.twitterKeywords.let {
+            logger.info("Created filter for twitter stream for keywords {}", it)
+            it.associateWith { element -> "Keyword: $element" }
+        }
 
     fun setTweetToTwitterStatusListener(line: String) {
         if (line.isNotEmpty()) {
-            val tweet = getFormattedTweet(line)
-            var status: Status? = null
-            try {
-                status = TwitterObjectFactory.createStatus(tweet)
-            } catch (te: TwitterException) {
-                logger.error("Could not create status for text: {}", tweet, te)
+            getFormattedTweet(line).let {
+                try {
+                    TwitterObjectFactory.createStatus(it)?.run {
+                        twitterStatusListener.onStatus(this)
+                    }
+                } catch (te: TwitterException) {
+                    logger.error("Could not create status for text: {}", it, te)
+                }
             }
-            status?.let { twitterStatusListener.onStatus(status) }
         }
     }
 
-    private fun getFormattedTweet(data: String?): String {
-        val jsonData = JSONObject(data).get("data") as JSONObject
-        val params = arrayOf(
-            ZonedDateTime.parse(jsonData.get("created_at").toString()).withZoneSameInstant(ZoneId.of("UTC"))
-                .format(DateTimeFormatter.ofPattern(TWITTER_STATUS_DATE_FORMAT, Locale.ENGLISH)),
-            jsonData.get("id").toString(),
-            jsonData.get("text").toString().replace("\"", "\\\\\""),
-            jsonData.get("author_id").toString()
-        )
-        return formatTweetAsJsonWithParams(params)
-    }
+    private fun getFormattedTweet(data: String?): String =
+        (JSONObject(data).get("data") as JSONObject).run {
+            arrayOf(
+                ZonedDateTime.parse(get("created_at").toString()).withZoneSameInstant(ZoneId.of("UTC"))
+                    .format(DateTimeFormatter.ofPattern(TWITTER_STATUS_DATE_FORMAT, Locale.ENGLISH)),
+                get("id").toString(),
+                get("text").toString().replace("\"", "\\\\\""),
+                get("author_id").toString()
+            )
+        }.let {
+            formatTweetAsJsonWithParams(it)
+        }
 
     private fun formatTweetAsJsonWithParams(params: Array<String>): String {
         var tweet = TWEET_AS_ROW_JSON
-        for ((index, value) in params.withIndex()) {
-            tweet = tweet.replace("{$index}", value)
-        }
+        params.onEachIndexed { index, param -> tweet = tweet.replace("{$index}", param) }
         return tweet
     }
-
 }

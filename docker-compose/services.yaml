@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  twitter-to-kafka-service:
+    image: twitter-to-kafka-service:${SERVICE_VERSION}
+    ports:
+      - "5005:5005"
+    depends_on:
+      - schema-registry
+    restart: on-failure
+    volumes:
+      - ./docker-logs:/workspace/twitter-to-kafka-service/logs
+    environment:
+      TWITTER_BEARER_TOKEN: ${TWITTER_BEARER_TOKEN}
+      JAVA_OPTS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Xms128m -Xmx256m
+      LOGGING_LEVEL_COM_ALMLAND: info
+      LOGGING_LEVEL_ROOT: info
+      KAFKA_CONFIGURATION_TOPIC_NAME: twitter-topic
+      KAFKA_CONFIGURATION_BOOTSTRAP_SERVERS: kafka-broker-1:9092, kafka-broker-2:9092, kafka-broker-3:9092
+      KAFKA_CONFIGURATION_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+    networks:
+      - ${GLOBAL_NETWORK:-services}

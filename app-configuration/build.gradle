@@ -1,0 +1,12 @@
+plugins {
+    id("org.jetbrains.kotlin.plugin.spring") version "1.7.21"
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("org.springframework.boot:spring-boot-starter:3.0.0")
+    implementation("org.twitter4j:twitter4j-stream:4.0.7")
+}

@@ -1,0 +1,11 @@
+{
+    "namespace": "com.AlMLand.kafka.avro.model",
+    "name": "TwitterAvroModel",
+    "type": "record",
+    "fields": [
+        {"name": "userId", "type": "long"},
+        {"name": "id", "type": "long"},
+        {"name": "text", "type": ["null", "string"]},
+        {"name": "createdAt", "type": ["null", "long"], "logicalType": ["null", "date"]}
+        ]
+}

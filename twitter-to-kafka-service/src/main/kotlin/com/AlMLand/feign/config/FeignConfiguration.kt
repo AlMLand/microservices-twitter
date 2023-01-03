@@ -1,7 +1,7 @@
 package com.AlMLand.feign.config
 
 import com.AlMLand.feign.controller.TwitterFeignClient
-import com.AlMLand.twittertokafkaservice.TwitterProperties
+import com.AlMLand.twitterToKafkaService.TwitterProperties
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule

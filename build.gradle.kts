@@ -27,7 +27,31 @@ project("twitter-to-kafka-service") {
     }
 }
 
-project("app-config") {
+project("app-configuration") {
+    apply {
+        group = "com.AlMLand"
+        version = "0.0.1-SNAPSHOT"
+        plugin("kotlin")
+        plugin("org.springframework.boot")
+        plugin("io.spring.dependency-management")
+        plugin("io.github.zafkiel1312.verifyfeign")
+        plugin("org.jetbrains.kotlin.plugin.allopen")
+    }
+}
+
+project("kafka") {
+    apply {
+        group = "com.AlMLand"
+        version = "0.0.1-SNAPSHOT"
+        plugin("kotlin")
+        plugin("org.springframework.boot")
+        plugin("io.spring.dependency-management")
+        plugin("io.github.zafkiel1312.verifyfeign")
+        plugin("org.jetbrains.kotlin.plugin.allopen")
+    }
+}
+
+project("common-configuration") {
     apply {
         group = "com.AlMLand"
         version = "0.0.1-SNAPSHOT"

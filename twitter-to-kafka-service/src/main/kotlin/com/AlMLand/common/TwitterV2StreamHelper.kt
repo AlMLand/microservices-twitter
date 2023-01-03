@@ -1,7 +1,7 @@
 package com.AlMLand.common
 
 import com.AlMLand.common.HttpRequest.*
-import com.AlMLand.twittertokafkaservice.TwitterProperties
+import com.AlMLand.twitterToKafkaService.TwitterProperties
 import org.apache.http.HttpEntity
 import org.apache.http.client.config.CookieSpecs
 import org.apache.http.client.config.RequestConfig
@@ -43,125 +43,122 @@ class TwitterV2StreamHelper(
     }
 
     fun connectStream() {
-        val entity = getHttpResponseEntity(twitterProperties.twitterBearerToken)
-        entity.let {
-            val reader = BufferedReader(InputStreamReader(entity.content))
-            var line = reader.readLine()
+        BufferedReader(InputStreamReader(getHttpResponseEntity(twitterProperties.twitterBearerToken).content)).run {
+            var line = readLine()
             while (line != null) {
-                line = reader.readLine()
                 commonTweetService.setTweetToTwitterStatusListener(line)
+                line = readLine()
             }
         }
     }
 
     fun setupRules(rules: Map<String, String>) {
-        val bearerToken = twitterProperties.twitterBearerToken
-        val existingRules = getRules(bearerToken)
-        if (existingRules.isNotEmpty()) {
-            deleteRules(existingRules)
+        getRules(twitterProperties.twitterBearerToken).run {
+            if (isNotEmpty()) {
+                deleteRules(this)
+            }
         }
-        createRules(bearerToken, rules)
-        logger.info("Created rules for twitter stream {}", rules.keys.joinToString(", "))
+        createRules(twitterProperties.twitterBearerToken, rules).run {
+            logger.info("Created rules for twitter stream {}", rules.keys.joinToString(", "))
+        }
     }
 
     private fun createRules(bearerToken: String, rules: Map<String, String>) {
-        val (httpClient, httpPost, body) = getHttpClientHttpRequestRequestBody(
+        getHttpClientHttpRequestRequestBody(
             bearerToken,
             rules = rules
-        )
-        httpPost.entity = body
-        val response = httpClient.execute(httpPost)
-        val entity = response.entity
-        entity?.let { println(EntityUtils.toString(entity, DEFAULT_CHARSET)) }
+        ).run {
+            second.entity = third
+            first.execute(second)
+        }.run {
+            entity
+        }?.let {
+            println(EntityUtils.toString(it, DEFAULT_CHARSET))
+        }
     }
 
     private fun deleteRules(existingRules: List<String>) {
-        val (httpClient, httpPost, body) = getHttpClientHttpRequestRequestBody(
+        getHttpClientHttpRequestRequestBody(
             twitterProperties.twitterBearerToken,
             existingRules = existingRules
-        )
-        httpPost.entity = body
-        val response = httpClient.execute(httpPost)
-        val httpEntity = response.entity
-        httpEntity?.let { println(EntityUtils.toString(httpEntity, DEFAULT_CHARSET)) }
+        ).run {
+            second.entity = third
+            first.execute(second)
+        }.run {
+            entity
+        }?.let {
+            println(EntityUtils.toString(it, DEFAULT_CHARSET))
+        }
     }
 
     private fun getHttpClientHttpRequestRequestBody(
         bearerToken: String,
         rules: Map<String, String>? = null,
         existingRules: List<String>? = null
-    ): Triple<CloseableHttpClient, HttpEntityEnclosingRequestBase, StringEntity> {
-        val httpClient = getHttpClient()
-        val httpPost = createHttpRequest(POST, bearerToken) as HttpEntityEnclosingRequestBase
-        val body = StringEntity(rules?.let { getFormattedString(rules) } ?: existingRules?.let {
-            getFormattedString(existingRules)
-        })
-        return Triple(httpClient, httpPost, body)
-    }
+    ): Triple<CloseableHttpClient, HttpEntityEnclosingRequestBase, StringEntity> =
+        Triple(
+            first = getHttpClient(),
+            second = createHttpRequest(POST, bearerToken) as HttpEntityEnclosingRequestBase,
+            third = StringEntity(rules?.let { getFormattedString(rules) } ?: existingRules?.let {
+                getFormattedString(existingRules)
+            })
+        )
 
-    private fun getRules(bearerToken: String): List<String> {
-        val entity = getHttpResponseEntity(bearerToken, GET)
-        entity.let {
-            val json = JSONObject(EntityUtils.toString(entity, DEFAULT_CHARSET))
-            return getRulesFromJson(json)
+    private fun getRules(bearerToken: String): List<String> =
+        getRulesFromJson(JSONObject(EntityUtils.toString(getHttpResponseEntity(bearerToken, GET), DEFAULT_CHARSET)))
+
+    fun getRulesFromJson(json: JSONObject): List<String> =
+        with(json) {
+            if (length() > 1 && has("data")) {
+                (get("data") as JSONArray).run {
+                    asSequence().map {
+                        (it as? JSONObject)?.getString("id") ?: ""
+                    }.toList()
+                }
+            } else emptyList()
         }
-    }
 
-    fun getRulesFromJson(json: JSONObject): List<String> {
-        if (json.length() > 1 && json.has("data")) {
-            val jsonArray = json.get("data") as JSONArray
-            return jsonArray.asSequence().map {
-                (it as? JSONObject)?.getString("id") ?: ""
-            }.toList()
-        }
-        return emptyList()
-    }
-
-    private fun getHttpResponseEntity(bearerToken: String, httpRequest: HttpRequest = DEFAULT): HttpEntity {
-        val httpClient = getHttpClient()
-        val request = when (httpRequest) {
+    private fun getHttpResponseEntity(bearerToken: String, httpRequest: HttpRequest = DEFAULT): HttpEntity =
+        when (httpRequest) {
             DEFAULT -> createHttpGet(bearerToken)
             GET -> createHttpRequest(GET, bearerToken)
             else -> throw IllegalArgumentException("Not allowed argument as request")
+        }.let {
+            getHttpClient().execute(it).entity
         }
-        val httpResponse = httpClient.execute(request)
-        return httpResponse.entity
-    }
 
-    private fun getFormattedString(ids: List<String>): String {
-        val result = ids.joinToString(separator = "\",\"", prefix = "\"", postfix = "\"")
-        return String.format(BODY_DELETE_TEMPLATE, result)
-    }
+    private fun getFormattedString(ids: List<String>): String =
+        ids.joinToString(separator = "\",\"", prefix = "\"", postfix = "\"").let {
+            String.format(BODY_DELETE_TEMPLATE, it)
+        }
 
-    private fun getFormattedString(rules: Map<String, String>): String {
-        val sb = StringBuilder()
-        rules.forEach { (key, value) -> sb.append("{\"value\": \"$key\", \"tag\": \"$value\"},") }
-        return String.format(BODY_ADD_TEMPLATE, sb.toString().substring(0, sb.length - 1))
-    }
+    private fun getFormattedString(rules: Map<String, String>): String =
+        with(StringBuilder()) {
+            rules.forEach { (key, value) -> append("{\"value\": \"$key\", \"tag\": \"$value\"},") }
+            String.format(BODY_ADD_TEMPLATE, substring(0, length - 1))
+        }
 
     private fun getHttpClient(): CloseableHttpClient = HttpClients.custom()
         .setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build()).build()
 
-    private fun createHttpGet(bearerToken: String): HttpGet {
-        val uriBuilder = URIBuilder(twitterProperties.twitterBaseUrl + twitterProperties.twitterTweetUrl)
-        val httpGet = HttpGet(uriBuilder.build())
-        httpGet.setHeader("Authorization", "Bearer $bearerToken")
-        return httpGet
-    }
-
-    private fun createHttpRequest(httpRequest: HttpRequest, bearerToken: String): HttpRequestBase {
-        val uriBuilder = URIBuilder(twitterProperties.twitterBaseUrl + twitterProperties.twitterRulesUrl)
-        val request = when (httpRequest) {
-            POST -> HttpPost(uriBuilder.build())
-            GET -> HttpGet(uriBuilder.build())
-            else -> throw IllegalArgumentException("Not allowed argument as request")
+    private fun createHttpGet(bearerToken: String): HttpGet =
+        HttpGet(URIBuilder(twitterProperties.twitterBaseUrl + twitterProperties.twitterTweetUrl).build()).apply {
+            setHeader("Authorization", "Bearer $bearerToken")
         }
-        request.setHeaders(
-            arrayOf(
-                BasicHeader("Authorization", "Bearer $bearerToken"),
-                BasicHeader("Content-type", "application/json")
+
+    private fun createHttpRequest(httpRequest: HttpRequest, bearerToken: String): HttpRequestBase =
+        URIBuilder(twitterProperties.twitterBaseUrl + twitterProperties.twitterRulesUrl).let {
+            when (httpRequest) {
+                POST -> HttpPost(it.build())
+                GET -> HttpGet(it.build())
+                else -> throw IllegalArgumentException("Not allowed argument as request")
+            }
+        }.apply {
+            setHeaders(
+                arrayOf(
+                    BasicHeader("Authorization", "Bearer $bearerToken"),
+                    BasicHeader("Content-type", "application/json")
+                )
             )
-        )
-        return request
-    }
+        }
 }

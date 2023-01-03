@@ -1,0 +1,12 @@
+version: '3.8'
+
+networks:
+  application:
+    driver: bridge
+
+volumes:
+  microservices-twitter-zookeeper:
+  microservices-twitter-schema-registry:
+  microservices-twitter-kafka-broker-1:
+  microservices-twitter-kafka-broker-2:
+  microservices-twitter-kafka-broker-3:
