@@ -1,7 +1,3 @@
-plugins {
-    id("org.jetbrains.kotlin.plugin.spring") version "1.7.21"
-}
-
 repositories {
     mavenCentral()
     maven {
@@ -12,6 +8,5 @@ repositories {
 dependencies {
     implementation(project(":app-configuration"))
     implementation(project(":kafka:kafka-model"))
-    implementation("org.springframework.kafka:spring-kafka:3.0.0")
-    implementation("io.confluent:kafka-avro-serializer:7.3.1")
+    implementation("org.springframework.kafka:spring-kafka")
 }
