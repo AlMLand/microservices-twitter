@@ -24,7 +24,6 @@ extra["json.version"] = "20220924"
 extra["apache.httpclient.version"] = "4.5.14"
 extra["openfeign.feign-jackson.version"] = "12.1"
 extra["spring-retry.version"] = "2.0.0"
-extra["spring-cloud-config-server.version"] = "4.0.0"
 
 repositories {
     mavenCentral()
@@ -32,8 +31,8 @@ repositories {
 
 allprojects {
     apply {
-        group = "${project.group}"
-        version = "${project.version}"
+        group = "${project.rootProject.group}"
+        version = "${project.rootProject.version}"
         java.sourceCompatibility = JavaVersion.VERSION_17
         plugin("kotlin")
         plugin("org.springframework.boot")
@@ -45,14 +44,6 @@ allprojects {
                 freeCompilerArgs = listOf("-Xjsr305=strict")
                 jvmTarget = "17"
             }
-        }
-    }
-}
-
-project(":server-configuration") {
-    apply {
-        dependencies {
-            implementation("org.springframework.cloud:spring-cloud-config-server:${property("spring-cloud-config-server.version")}")
         }
     }
 }

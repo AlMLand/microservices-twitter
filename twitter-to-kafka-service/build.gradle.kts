@@ -1,3 +1,7 @@
+plugins {
+    id("org.jetbrains.kotlin.plugin.spring") version "1.7.21"
+}
+
 repositories {
     mavenCentral()
     maven {
@@ -19,7 +23,7 @@ dependencies {
 docker {
     name = "${project.name}:${project.version}"
     setDockerfile(File("/src/main/docker/Dockerfile"))
-    files("/build/libs/twitter-to-kafka-service-${project.version}.jar")
+    files("/build/libs/${project.name}-${project.version}.jar")
 }
 
 tasks.withType<Test> {
