@@ -1,7 +1,7 @@
 package com.AlMLand.initialization
 
 import com.AlMLand.kafka.admin.client.KafkaAdminClient
-import com.AlMLand.kafkaAdmin.KafkaProperties
+import com.AlMLand.kafka.kafkaAdmin.KafkaProperties
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
