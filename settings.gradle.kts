@@ -9,3 +9,5 @@ findProject(":kafka:kafka-model")?.name = "kafka-model"
 include("kafka:kafka-producer")
 findProject(":kafka:kafka-producer")?.name = "kafka-producer"
 include("common-configuration")
+include("kafka:kafka-consumer")
+findProject(":kafka:kafka-consumer")?.name = "kafka-consumer"
