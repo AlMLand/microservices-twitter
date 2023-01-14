@@ -1,6 +1,6 @@
 package com.AlMLand.kafka.admin.configuration
 
-import com.AlMLand.kafkaAdmin.KafkaProperties
+import com.AlMLand.kafka.kafkaAdmin.KafkaProperties
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.admin.Admin
 import org.springframework.context.annotation.Bean

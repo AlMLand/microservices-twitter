@@ -20,16 +20,6 @@ twitter-to-kafka-service:
   twitter-rules-url: /2/tweets/search/stream/rules
   twitter-bearer-token: ${TWITTER_BEARER_TOKEN}
   twitter-tweets-limit: 0
-  common:
-    app-start: App starts...
-    info-message: Searched keywords
-
-retry-configuration:
-  initial-interval-ms: 1000
-  max-interval-ms: 10000
-  multiplier: 2
-  max-attempts: 3
-  sleep-time-ms: 2000
 
 kafka-configuration:
   bootstrap-servers: localhost:19092, localhost:29092, localhost:39092
@@ -51,3 +41,10 @@ kafka-producer:
   linger: 5
   request-timeout: 60000
   retry-count: 5
+
+retry-configuration:
+  initial-interval-ms: 1000
+  max-interval-ms: 10000
+  multiplier: 2
+  max-attempts: 3
+  sleep-time-ms: 2000

@@ -80,6 +80,14 @@ project(":kafka:kafka-producer") {
     }
 }
 
+project(":kafka:kafka-consumer") {
+    apply {
+        dependencies {
+            implementation("org.apache.avro:avro:${property("avro.version")}")
+        }
+    }
+}
+
 project(":kafka:kafka-model") {
     apply {
         plugin("java")

@@ -1,7 +1,7 @@
 package com.AlMLand.kafka.producer.configuration
 
-import com.AlMLand.kafkaAdmin.KafkaProperties
-import com.AlMLand.kafkaProducer.KafkaProducerProperties
+import com.AlMLand.kafka.kafkaAdmin.KafkaProperties
+import com.AlMLand.kafka.kafkaProducer.KafkaProducerProperties
 import org.apache.avro.specific.SpecificRecordBase
 import org.apache.kafka.clients.producer.ProducerConfig.*
 import org.springframework.context.annotation.Bean

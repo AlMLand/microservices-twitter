@@ -1,8 +1,8 @@
 package com.AlMLand.kafka.admin.client
 
-import com.AlMLand.commonConfig.RetryProperties
 import com.AlMLand.kafka.admin.exception.KafkaClientException
-import com.AlMLand.kafkaAdmin.KafkaProperties
+import com.AlMLand.kafka.kafkaAdmin.KafkaProperties
+import com.AlMLand.retry.RetryProperties
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.apache.kafka.clients.admin.Admin
@@ -14,7 +14,6 @@ import org.springframework.retry.RetryContext
 import org.springframework.retry.support.RetryTemplate
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
-
 
 @Component
 class KafkaAdminClient(

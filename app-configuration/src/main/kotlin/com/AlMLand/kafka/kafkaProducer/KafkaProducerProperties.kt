@@ -1,4 +1,4 @@
-package com.AlMLand.kafkaProducer
+package com.AlMLand.kafka.kafkaProducer
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration

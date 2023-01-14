@@ -1,8 +1,8 @@
 package com.AlMLand.listener
 
 import com.AlMLand.kafka.avro.model.TwitterAvroModel
+import com.AlMLand.kafka.kafkaAdmin.KafkaProperties
 import com.AlMLand.kafka.producer.service.KafkaProducer
-import com.AlMLand.kafkaAdmin.KafkaProperties
 import com.AlMLand.transformation.TwitterStatusToAvroTransformer
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
