@@ -1,4 +1,4 @@
-package com.AlMLand.kafkaAdmin
+package com.AlMLand.kafka.kafkaAdmin
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration
