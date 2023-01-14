@@ -1,6 +1,6 @@
-package com.AlMLand.common.config
+package com.AlMLand.retry.config
 
-import com.AlMLand.commonConfig.RetryProperties
+import com.AlMLand.retry.RetryProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.retry.policy.SimpleRetryPolicy

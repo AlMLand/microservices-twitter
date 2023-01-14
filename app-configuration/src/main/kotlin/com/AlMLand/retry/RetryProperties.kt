@@ -1,4 +1,4 @@
-package com.AlMLand.commonConfig
+package com.AlMLand.retry
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration
