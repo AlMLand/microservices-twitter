@@ -92,6 +92,14 @@ project(":kafka:kafka-model") {
     }
 }
 
+project(":kafka-to-elasticsearch-service") {
+    apply {
+        dependencies {
+            implementation("io.confluent:kafka-avro-serializer:${property("kafka-avro-serializer.version")}")
+        }
+    }
+}
+
 project(":twitter-to-kafka-service") {
     apply {
         plugin("com.palantir.docker")

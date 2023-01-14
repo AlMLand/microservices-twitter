@@ -10,3 +10,4 @@ include("kafka:kafka-producer")
 findProject(":kafka:kafka-producer")?.name = "kafka-producer"
 include("kafka:kafka-consumer")
 findProject(":kafka:kafka-consumer")?.name = "kafka-consumer"
+include("kafka-to-elasticsearch-service")
