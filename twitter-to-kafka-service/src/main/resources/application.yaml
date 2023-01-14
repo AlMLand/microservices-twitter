@@ -2,6 +2,9 @@ spring:
   config:
     name: twitter-to-kafka-service
 
+server:
+  port: 8181
+
 twitter-to-kafka-service:
   twitter-keywords:
     - Kotlin
