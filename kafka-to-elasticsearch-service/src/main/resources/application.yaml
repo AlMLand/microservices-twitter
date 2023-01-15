@@ -44,7 +44,7 @@ kafka-consumer:
   specific-avro-reader-key: specific.avro.reader
   specific-avro-reader: true
   batch-listener: true
-  auto-start-up: true
+  auto-start-up: false # the check and start logic is in startListening method
   concurrency-level: 3
   session-timeout: 10000
   heartbeat-interval: 3000
