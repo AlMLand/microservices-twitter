@@ -3,6 +3,8 @@ package com.AlMLand
 import com.AlMLand.initialization.StreamInitializer
 import com.AlMLand.runner.StreamRunner
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -18,15 +20,20 @@ fun main(args: Array<String>) {
 class TwitterToKafkaServiceApplication(
     private var environment: Environment,
     private val streamRunner: StreamRunner,
-    private val streamInitializer: StreamInitializer
+    @Value("\${twitter-to-kafka-service.kafka-initialization-programmatically}")
+    private val isProgrammaticallyInit: Boolean
 ) : CommandLineRunner {
+
+    @Autowired(required = false)
+    private lateinit var streamInitializer: StreamInitializer
+
     companion object {
-        private val logger = LoggerFactory.getLogger(TwitterToKafkaServiceApplication::class.java)
+        private val logger = LoggerFactory.getLogger(this::class.java)
     }
 
     override fun run(vararg args: String?) {
         if (!isTestProfileActive()) {
-            streamInitializer.init()
+            if (isProgrammaticallyInit) streamInitializer.init()
             streamRunner.start()
         }
     }

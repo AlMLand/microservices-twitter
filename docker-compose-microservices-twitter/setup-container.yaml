@@ -10,3 +10,4 @@ volumes:
   microservices-twitter-kafka-broker-1:
   microservices-twitter-kafka-broker-2:
   microservices-twitter-kafka-broker-3:
+  microservices-twitter-kafka-broker-initialization:
