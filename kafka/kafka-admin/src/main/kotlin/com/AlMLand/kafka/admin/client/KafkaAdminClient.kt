@@ -6,12 +6,11 @@ import com.AlMLand.retry.RetryProperties
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.apache.kafka.clients.admin.Admin
-import org.apache.kafka.clients.admin.CreateTopicsResult
 import org.apache.kafka.clients.admin.NewTopic
 import org.apache.kafka.clients.admin.TopicListing
 import org.slf4j.LoggerFactory
-import org.springframework.retry.RetryContext
-import org.springframework.retry.support.RetryTemplate
+import org.springframework.retry.annotation.Backoff
+import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 
@@ -20,7 +19,6 @@ class KafkaAdminClient(
     private val kafkaProperties: KafkaProperties,
     private val retryProperties: RetryProperties,
     private val kafkaAdmin: Admin,
-    private val retryTemplate: RetryTemplate,
     private val webClient: WebClient
 ) {
     companion object {
@@ -30,10 +28,24 @@ class KafkaAdminClient(
         private const val RETRY_LIMIT_TOPICS = "Can't fetch all topics from kafka"
     }
 
+    @Retryable(
+        value = [Throwable::class],
+        maxAttempts = 3,
+        backoff = Backoff(delay = 2000, multiplier = 2.0)
+    )
     fun createTopic() {
         try {
-            retryTemplate.execute<CreateTopicsResult, Throwable> { executeCreateTopics(it) }.let {
-                logger.info("Create topic, result: {}", it.all().get() ?: "the topic exists already")
+            kafkaProperties.topicNamesToCreate.filter { notAlreadyExists(it.trim()) }.map {
+                NewTopic(
+                    it.trim(),
+                    kafkaProperties.numberOfPartitions,
+                    kafkaProperties.replicationFactor
+                )
+            }.let {
+                logger.info("Start with create a ${it.size} topics")
+                kafkaAdmin.createTopics(it).also { result ->
+                    logger.info("Create topic, result: ${result.all().get() ?: "the topic exists already"}")
+                }
             }
         } catch (t: Throwable) {
             throw KafkaClientException(RETRY_LIMIT_TOPIC_CREATION, t)
@@ -55,41 +67,24 @@ class KafkaAdminClient(
         }
     }
 
+    @Retryable(
+        value = [Throwable::class],
+        maxAttempts = 3,
+        backoff = Backoff(delay = 2000, multiplier = 2.0)
+    )
     private fun getTopics(): Collection<TopicListing>? =
         try {
-            retryTemplate.execute<Collection<TopicListing>, Throwable> { executeGetTopics(it) }
+            logger.info("Reading kafka topic ${kafkaProperties.topicNamesToCreate}")
+            kafkaAdmin.listTopics().listings().get()?.run {
+                forEach { logger.debug("Topic with id ${it.topicId()}, name ${it.name()}") }
+                this
+            }
         } catch (t: Throwable) {
             throw KafkaClientException(RETRY_LIMIT_TOPICS, t)
         }
 
-    private fun executeGetTopics(retryContext: RetryContext): Collection<TopicListing>? {
-        logger.info(
-            "Reading kafka topic {}, attempt {}",
-            kafkaProperties.topicNamesToCreate.toTypedArray(),
-            retryContext.retryCount
-        )
-        return kafkaAdmin.listTopics().listings().get()?.run {
-            forEach { logger.debug("Topic with id {}, name {}", it.topicId(), it.name()) }
-            this
-        }
-    }
-
     private suspend fun isTopicCreated(topics: Collection<TopicListing>?, topicName: String): Boolean =
         topics?.any { it.name() == topicName } ?: false
-
-    private fun executeCreateTopics(retryContext: RetryContext): CreateTopicsResult {
-        val topicNames = kafkaProperties.topicNamesToCreate
-        topicNames.filter { notAlreadyExists(it.trim()) }.map {
-            NewTopic(
-                it.trim(),
-                kafkaProperties.numberOfPartitions,
-                kafkaProperties.replicationFactor
-            )
-        }.let {
-            logger.info("Start with create a {} topics , attempt {}", topicNames.size, retryContext.retryCount)
-            return kafkaAdmin.createTopics(it)
-        }
-    }
 
     private fun notAlreadyExists(topicName: String) = getTopics()?.none { it.name() == topicName } ?: true
 
