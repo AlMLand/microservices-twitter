@@ -8,6 +8,6 @@ fun main(args: Array<String>) {
     runApplication<KafkaToElasticsearchServiceApplication>(*args)
 }
 
-@ComponentScan(basePackages = ["com.AlMLand.kafka", "com.AlMLand.retry", "com.AlMLand.elasticsearch"])
+@ComponentScan(basePackages = ["com.AlMLand.kafka", "com.AlMLand.elasticsearch"])
 @SpringBootApplication
 class KafkaToElasticsearchServiceApplication
