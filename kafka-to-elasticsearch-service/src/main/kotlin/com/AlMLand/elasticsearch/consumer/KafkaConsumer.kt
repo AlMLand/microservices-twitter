@@ -7,7 +7,7 @@ import org.apache.avro.specific.SpecificRecordBase
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry
-import org.springframework.kafka.support.KafkaHeaders
+import org.springframework.kafka.support.KafkaHeaders.*
 import org.springframework.messaging.handler.annotation.Header
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Service
@@ -29,9 +29,9 @@ sealed interface KafkaConsumer<K : Serializable, V : SpecificRecordBase> {
         @KafkaListener(id = "twitterTopicListener", topics = ["\${kafka-configuration.topic-name}"])
         override fun receive(
             @Payload messages: List<TwitterAvroModel>,
-            @Header(KafkaHeaders.RECEIVED_KEY) keys: List<Int>,
-            @Header(KafkaHeaders.RECEIVED_PARTITION) partitions: List<Int>,
-            @Header(KafkaHeaders.OFFSET) offsets: List<Long>
+            @Header(RECEIVED_KEY) keys: List<Int>,
+            @Header(RECEIVED_PARTITION) partitions: List<Int>,
+            @Header(OFFSET) offsets: List<Long>
         ) {
             logger.info(
                 """
