@@ -23,7 +23,6 @@ extra["jackson-module-kotlin.version"] = "2.14.1"
 extra["json.version"] = "20220924"
 extra["apache.httpclient.version"] = "4.5.14"
 extra["openfeign.feign-jackson.version"] = "12.1"
-extra["spring-retry.version"] = "2.0.0"
 
 repositories {
     mavenCentral()
@@ -56,18 +55,13 @@ project(":app-configuration") {
     }
 }
 
-project(":common-configuration") {
-    apply {
-        dependencies {
-            implementation("org.springframework.retry:spring-retry:${property("spring-retry.version")}")
-        }
-    }
-}
-
 project(":kafka:kafka-admin") {
     apply {
         dependencies {
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${property("kotlinx-coroutines-core.version")}")
+            implementation(
+                "org.jetbrains.kotlinx:kotlinx-coroutines-core:" +
+                        "${property("kotlinx-coroutines-core.version")}"
+            )
         }
     }
 }
@@ -108,8 +102,14 @@ project(":twitter-to-kafka-service") {
             implementation("org.json:json:${property("json.version")}")
             implementation("io.github.openfeign:feign-jackson:${property("openfeign.feign-jackson.version")}")
             implementation("org.apache.httpcomponents:httpclient:${property("apache.httpclient.version")}")
-            implementation("com.fasterxml.jackson.module:jackson-module-kotlin:${property("jackson-module-kotlin.version")}")
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${property("kotlinx-coroutines-core.version")}")
+            implementation(
+                "com.fasterxml.jackson.module:jackson-module-kotlin:" +
+                        "${property("jackson-module-kotlin.version")}"
+            )
+            implementation(
+                "org.jetbrains.kotlinx:kotlinx-coroutines-core:" +
+                        "${property("kotlinx-coroutines-core.version")}"
+            )
         }
     }
 }
