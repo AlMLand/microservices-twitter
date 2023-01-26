@@ -1,10 +1,9 @@
 package com.AlMLand.kafka.admin.client
 
-import com.AlMLand.kafka.admin.exception.KafkaClientException
+import com.AlMLand.kafka.admin.exception.KafkaCreateTopicException
+import com.AlMLand.kafka.admin.exception.KafkaFetchAllTopicsException
+import com.AlMLand.kafka.admin.exception.KafkaSchemaRegistryException
 import com.AlMLand.kafka.kafkaAdmin.KafkaProperties
-import com.AlMLand.retry.RetryProperties
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import org.apache.kafka.clients.admin.Admin
 import org.apache.kafka.clients.admin.NewTopic
 import org.apache.kafka.clients.admin.TopicListing
@@ -17,7 +16,6 @@ import org.springframework.web.reactive.function.client.WebClient
 @Component
 class KafkaAdminClient(
     private val kafkaProperties: KafkaProperties,
-    private val retryProperties: RetryProperties,
     private val kafkaAdmin: Admin,
     private val webClient: WebClient
 ) {
@@ -29,7 +27,7 @@ class KafkaAdminClient(
     }
 
     @Retryable(
-        value = [Throwable::class],
+        value = [KafkaCreateTopicException::class],
         maxAttempts = 3,
         backoff = Backoff(delay = 2000, multiplier = 2.0)
     )
@@ -47,65 +45,51 @@ class KafkaAdminClient(
                     logger.info("Create topic, result: ${result.all().get() ?: "the topic exists already"}")
                 }
             }
-        } catch (t: Throwable) {
-            throw KafkaClientException(RETRY_LIMIT_TOPIC_CREATION, t)
+        } catch (re: RuntimeException) {
+            throw KafkaCreateTopicException(RETRY_LIMIT_TOPIC_CREATION, re)
         }
         checkTopicsCreated()
     }
 
+    private fun notAlreadyExists(topicName: String) = allTopics()?.none { it.name() == topicName } ?: true
+
+    @Retryable(
+        value = [KafkaFetchAllTopicsException::class],
+        maxAttempts = 3,
+        backoff = Backoff(delay = 2000, multiplier = 3.0)
+    )
     fun checkTopicsCreated() {
-        var topics = getTopics()
-        for (name in kafkaProperties.topicNamesToCreate) {
-            runBlocking {
-                var (retryCount, sleepTime) = Pair(1, retryProperties.sleepTimeMs)
-                while (!isTopicCreated(topics, name)) {
-                    retryCount = checkRetry(retryCount, sleepTime, RETRY_LIMIT_TOPIC_CREATION)
-                    sleepTime = sleepTime.times(retryProperties.multiplier)
-                    topics = getTopics()
-                }
+        allTopics()?.let {
+            it.map { topicListing -> topicListing.name() }.also { topicNames ->
+                if (!topicNames.containsAll(kafkaProperties.topicNamesToCreate))
+                    throw KafkaFetchAllTopicsException(RETRY_LIMIT_TOPICS)
             }
-        }
+        } ?: throw KafkaFetchAllTopicsException(RETRY_LIMIT_TOPICS)
     }
 
     @Retryable(
-        value = [Throwable::class],
+        value = [KafkaFetchAllTopicsException::class],
         maxAttempts = 3,
         backoff = Backoff(delay = 2000, multiplier = 2.0)
     )
-    private fun getTopics(): Collection<TopicListing>? =
+    private fun allTopics(): Collection<TopicListing>? =
         try {
             logger.info("Reading kafka topic ${kafkaProperties.topicNamesToCreate}")
             kafkaAdmin.listTopics().listings().get()?.run {
                 forEach { logger.debug("Topic with id ${it.topicId()}, name ${it.name()}") }
                 this
             }
-        } catch (t: Throwable) {
-            throw KafkaClientException(RETRY_LIMIT_TOPICS, t)
+        } catch (re: RuntimeException) {
+            throw KafkaFetchAllTopicsException(RETRY_LIMIT_TOPICS, re)
         }
 
-    private suspend fun isTopicCreated(topics: Collection<TopicListing>?, topicName: String): Boolean =
-        topics?.any { it.name() == topicName } ?: false
-
-    private fun notAlreadyExists(topicName: String) = getTopics()?.none { it.name() == topicName } ?: true
-
+    @Retryable(
+        value = [KafkaSchemaRegistryException::class],
+        maxAttempts = 3,
+        backoff = Backoff(delay = 2000, multiplier = 2.0)
+    )
     fun checkSchemaRegistry() {
-        var (retryCount, sleepTime) = Pair(1, retryProperties.sleepTimeMs)
-        runBlocking {
-            while (!isSchemaRegistrySuccessful()) {
-                retryCount = checkRetry(retryCount, sleepTime, RETRY_LIMIT_SCHEMA_REGISTRY)
-                sleepTime = sleepTime.times(retryProperties.multiplier)
-            }
-        }
-    }
-
-    private suspend fun checkRetry(retryCount: Int, sleepTime: Long, errorMessage: String): Int {
-        checkMaxRetry(retryCount, retryProperties.maxAttempts, errorMessage)
-        delay(sleepTime)
-        return retryCount.inc()
-    }
-
-    private fun checkMaxRetry(retryCount: Int, maxRetry: Int, errorMessage: String) {
-        if (retryCount > maxRetry) throw KafkaClientException(errorMessage)
+        if (!isSchemaRegistrySuccessful()) throw KafkaSchemaRegistryException(RETRY_LIMIT_SCHEMA_REGISTRY)
     }
 
     private fun isSchemaRegistrySuccessful(): Boolean =
