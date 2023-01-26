@@ -43,9 +43,3 @@ kafka-producer:
   request-timeout: 60000
   retry-count: 5
 
-retry-configuration:
-  initial-interval-ms: 1000
-  max-interval-ms: 10000
-  multiplier: 2
-  max-attempts: 3
-  sleep-time-ms: 2000
