@@ -25,8 +25,8 @@ class KafkaAdminClient(
     }
 
     @Retryable(
-        value = [KafkaCreateTopicException::class],
-        maxAttempts = 3,
+        retryFor = [KafkaCreateTopicException::class],
+        maxAttempts = 4,
         backoff = Backoff(delay = 2000, multiplier = 2.0),
         listeners = ["createTopicListener"]
     )
@@ -60,13 +60,13 @@ class KafkaAdminClient(
         allTopics()?.let {
             it.map { topicListing -> topicListing.name() }
                 .let { availableNames ->
-                    this.filter { newNames -> !availableNames.contains(newNames) }
+                    filter { newNames -> !availableNames.contains(newNames) }
                 }
         } ?: this
 
     @Retryable(
-        value = [KafkaFetchAllTopicsException::class],
-        maxAttempts = 3,
+        retryFor = [KafkaFetchAllTopicsException::class],
+        maxAttempts = 4,
         backoff = Backoff(delay = 2000, multiplier = 3.0)
     )
     fun checkTopicsCreated() {
@@ -79,8 +79,8 @@ class KafkaAdminClient(
     }
 
     @Retryable(
-        value = [KafkaFetchAllTopicsException::class],
-        maxAttempts = 3,
+        retryFor = [KafkaFetchAllTopicsException::class],
+        maxAttempts = 4,
         backoff = Backoff(delay = 2000, multiplier = 2.0),
         listeners = ["allTopicsListener"]
     )
@@ -95,7 +95,7 @@ class KafkaAdminClient(
         }
 
     @Retryable(
-        value = [KafkaSchemaRegistryException::class],
+        retryFor = [KafkaSchemaRegistryException::class],
         maxAttempts = 4,
         backoff = Backoff(delay = 3000, multiplier = 3.0),
         listeners = ["checkSchemaRegistryListener"]
