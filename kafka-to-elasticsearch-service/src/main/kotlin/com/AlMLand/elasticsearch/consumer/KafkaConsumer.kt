@@ -45,7 +45,7 @@ sealed interface KafkaConsumer<K : Serializable, V : SpecificRecordBase> {
 
         @EventListener
         fun startListening(event: ApplicationStartedEvent) =
-            kafkaAdminClient.checkTopicsCreated().let {
+            kafkaAdminClient.isTopicReady().let {
                 kafkaListenerEndpointRegistry
                     .getListenerContainer(TOPIC_LISTENER_ID)?.start().also {
                         logger.info(
