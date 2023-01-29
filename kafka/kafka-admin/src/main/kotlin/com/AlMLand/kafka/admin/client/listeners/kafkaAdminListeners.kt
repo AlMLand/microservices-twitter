@@ -103,3 +103,35 @@ class CheckSchemaRegistryListener : RetryListenerSupport() {
         )
     }
 }
+
+@Component
+class TopicReadyListener : RetryListenerSupport() {
+    companion object {
+        private val logger = LoggerFactory.getLogger(this::class.java)
+    }
+
+    override fun <T : Any?, E : Throwable?> onSuccess(
+        context: RetryContext?,
+        callback: RetryCallback<T, E>?,
+        result: T
+    ) {
+        logger.info(
+            """
+            The attempt ${context?.retryCount ?: LOGGER_NO_INFORMATION_MESSAGE} of kafka topics healthy check is successful.
+        """.trimIndent()
+        )
+    }
+
+    override fun <T : Any?, E : Throwable?> onError(
+        context: RetryContext?,
+        callback: RetryCallback<T, E>?,
+        throwable: Throwable?
+    ) {
+        logger.warn(
+            """
+            The attempt ${context?.retryCount ?: LOGGER_NO_INFORMATION_MESSAGE} of kafka topics healthy check is failed with Exception: 
+            ${context?.lastThrowable ?: LOGGER_NO_INFORMATION_MESSAGE}
+        """.trimIndent()
+        )
+    }
+}

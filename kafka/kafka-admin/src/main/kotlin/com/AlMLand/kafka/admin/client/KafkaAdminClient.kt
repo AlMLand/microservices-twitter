@@ -3,6 +3,7 @@ package com.AlMLand.kafka.admin.client
 import com.AlMLand.kafka.admin.exception.KafkaCreateTopicException
 import com.AlMLand.kafka.admin.exception.KafkaFetchAllTopicsException
 import com.AlMLand.kafka.admin.exception.KafkaSchemaRegistryException
+import com.AlMLand.kafka.admin.exception.KafkaTopicReadyException
 import com.AlMLand.kafka.kafkaAdmin.KafkaProperties
 import org.apache.kafka.clients.admin.Admin
 import org.apache.kafka.clients.admin.NewTopic
@@ -44,7 +45,7 @@ class KafkaAdminClient(
         } catch (re: RuntimeException) {
             throw KafkaCreateTopicException("Can't create kafka topic(s)", re)
         }
-        checkTopicsCreated()
+        isTopicReady()
     }
 
     private fun List<String>.mapToNewTopic() =
@@ -65,17 +66,18 @@ class KafkaAdminClient(
         } ?: this
 
     @Retryable(
-        retryFor = [KafkaFetchAllTopicsException::class],
+        retryFor = [KafkaTopicReadyException::class],
         maxAttempts = 4,
-        backoff = Backoff(delay = 2000, multiplier = 3.0)
+        backoff = Backoff(delay = 2000, multiplier = 3.0),
+        listeners = ["topicReadyListener"]
     )
-    fun checkTopicsCreated() {
+    fun isTopicReady() {
         allTopics()?.let {
             it.map { topicListing -> topicListing.name() }.also { topicNames ->
                 if (!topicNames.containsAll(kafkaProperties.topicNamesToCreate))
-                    throw KafkaFetchAllTopicsException("Can't fetch all topics from kafka")
+                    throw KafkaTopicReadyException("Kafka topics are not ready to use")
             }
-        }
+        } ?: throw KafkaTopicReadyException("Kafka topics are not ready to use")
     }
 
     @Retryable(

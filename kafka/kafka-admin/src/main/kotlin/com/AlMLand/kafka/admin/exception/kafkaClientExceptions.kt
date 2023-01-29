@@ -5,3 +5,5 @@ class KafkaSchemaRegistryException(message: String, throwable: Throwable? = null
 class KafkaCreateTopicException(message: String, throwable: Throwable? = null) : RuntimeException(message, throwable)
 
 class KafkaFetchAllTopicsException(message: String, throwable: Throwable? = null) : RuntimeException(message, throwable)
+
+class KafkaTopicReadyException(message: String, throwable: Throwable? = null) : RuntimeException(message, throwable)
